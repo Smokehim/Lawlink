@@ -2,17 +2,17 @@
 import  { useState } from 'react'
 import { FaBars} from 'react-icons/fa'; 
 import Ncomponets from './navbarc';
-const Navbar = () => {
-
+function Navbar (){
   const [add, setAdd] = useState(false)
+  const [added, setAdded] = useState(false)
   const List = ()=>{
-    setAdd((iterms)=>!iterms)
+    setAdded((iterms)=>!iterms)
   }
   const Adding = ()=>{
     setAdd((iterms)=>!iterms)
   }
-  return (
-   <div className='p-0 bg-orange-500'>
+  return(
+    <div className='p-0 bg-orange-500'>
     <nav className="flex justify-between text-white items-baseline p-2  static">
         <h1 className='text-3xl'>Lawlink</h1>
         <div className="hidden md:flex ">
@@ -28,21 +28,30 @@ const Navbar = () => {
             <FaBars onClick={Adding} className='4xl flex md:hidden '/>
         </div>
     </nav>
-    <div>
-        
-    <div/>
-    { add &&
-    <div className="flex md:hidden p-5 ">
+    <div className='flex justify-around '>
+      { add &&
+        <div className="flex md:hidden p-5 ">
         <ul className="flex flex-col text-white gap-7">
-            <li className='hover:text-black'>Service</li>
+            <li onClick={List} className='hover:text-black'>Service</li>
             <li className='hover:text-black'>About</li>
             <li className='hover:text-black'>insights</li>
             <li className='hover:text-black'>Help</li>
         </ul>
+        </div>
+       }
+       <div className=' flex  lg:flex justify-center'>
+       { added &&
+        <Ncomponets/>
+       }
+       </div>
     </div>
-    }
-   </div>
+   </div> 
   )
 }
 
 export default Navbar
+{/*
+  
+   */}
+    {/* 
+     */}
