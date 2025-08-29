@@ -4,12 +4,12 @@ import React from 'react'
 const Attorney = () => {
     const infor = [
         {id:1, title: "attorney", image:"/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg", description:"Attorney credential: what to verify", explanation:"Check education, licensing, experience"},
-        {id:1, title: "attorney", image:"/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg", description:"Legal support for startups",explanation:"Protect your business from day one"},
-        {id:1, title: "attorney", image:"/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg", description:"Resolving business disputes", explanation:"Compare mediation, arbitration, litigation"}
+        {id:2, title: "attorney", image:"/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg", description:"Legal support for startups",explanation:"Protect your business from day one"},
+        {id:3, title: "attorney", image:"/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg", description:"Resolving business disputes", explanation:"Compare mediation, arbitration, litigation"}
     ]
     const cards = [
         {id:1, title:"Lawyer specialties for business needs", description:"Match practice areas to your case"},
-        {id:1, title:"Question before hiring a lawyer", description:" clarity fees process and result"}
+        {id:2, title:"Question before hiring a lawyer", description:" clarity fees process and result"}
     ]
   return (
     <div>
