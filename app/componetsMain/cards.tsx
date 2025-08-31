@@ -18,7 +18,7 @@ const Cards = () => {
     ];
   return (
     <div>
-      <p>ATTORNEY VS LAWYER WHAT'S DIFFERENT</p>
+      <p>ATTORNEY VS LAWYER WHAT`S DIFFERENT</p>
       <h1>Business law experts, matched fast</h1>
       <div className="grid">
         {
