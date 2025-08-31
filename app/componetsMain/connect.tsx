@@ -1,6 +1,6 @@
 import React from 'react'
 import { IconType } from 'react-icons'; 
-import { FaRecycle, FaMailBulk, FaEnvelope, FaHeart, FaStar } from 'react-icons/fa'; 
+import { FaRecycle, FaMailBulk, FaEnvelope } from 'react-icons/fa'; 
 import Image from 'next/image';
 
 
@@ -13,9 +13,9 @@ const Connect = () => {
             description: string;
         }
     const cards: CardZ[] = [
-            {id:1, icon:<FaRecycle  className='text-4xl text-orange-600'/>, title:"Phone", description:"0969591009"},
-            {id:2, icon:<FaMailBulk className='text-4xl text-orange-600'/>, title:"Email", description:"mwambajason2@gmail.com"},
-            {id:3, icon:<FaEnvelope className='text-4xl text-orange-600'/>, title:"Location", description:"Lusaka zambia"},
+            {id:1, icon: FaRecycle, title:"Phone", description:"0969591009"},
+            {id:2, icon: FaMailBulk, title:"Email", description:"mwambajason2@gmail.com"},
+            {id:3, icon: FaEnvelope, title:"Location", description:"Lusaka zambia"},
             
         ];
   return (
@@ -30,7 +30,7 @@ const Connect = () => {
             {
                 cards.map((items)=>(
                     <div key={items.id} className='flex gap-5'>
-                        {items.icon}
+                        <items.icon className='text-4xl text-orange-600' />
                         <div className="flex flex-col">
                             <p>{items.title}</p>
                             <p>{items.description}</p>
