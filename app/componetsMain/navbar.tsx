@@ -1,6 +1,7 @@
 "use client";
 import  { useState } from 'react'
 import { FaBars} from 'react-icons/fa'; 
+import Link from 'next/link';
 import Ncomponets from './navbarc';
 function Navbar (){
   const [add, setAdd] = useState(false)
@@ -18,9 +19,9 @@ function Navbar (){
         <div className="hidden md:flex ">
             <ul className="flex text-white gap-7">
                 <li onClick={List} className='hover:text-black'>Service</li>
-                <li className='hover:text-black'>About</li>
-                <li className='hover:text-black'>insights</li>
-                <li className='hover:text-black'>Help</li>
+                <li className='hover:text-black'><Link href='/about'>About</Link></li>
+                <li className='hover:text-black'><Link href='/service'>Contact</Link></li>
+                <li className='hover:text-black'><Link href='/help'>Help</Link></li>
             </ul>
         </div>
         <div className="flex items-center gap-2">
@@ -33,9 +34,9 @@ function Navbar (){
         <div className="flex md:hidden p-5 ">
         <ul className="flex flex-col text-white gap-7">
             <li onClick={List} className='hover:text-black'>Service</li>
-            <li className='hover:text-black'>About</li>
-            <li className='hover:text-black'>insights</li>
-            <li className='hover:text-black'>Help</li>
+            <li className='hover:text-black'><Link href='/about'>About</Link></li>
+            <li className='hover:text-black'><Link href='/service'>Contact</Link></li>
+            <li className='hover:text-black'><Link href='/help'>Help</Link></li>
         </ul>
         </div>
        }
@@ -50,8 +51,5 @@ function Navbar (){
 }
 
 export default Navbar
-{/*
-  
-   */}
-    {/* 
-     */}
+
+     
