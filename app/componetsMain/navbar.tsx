@@ -20,12 +20,12 @@ function Navbar (){
             <ul className="flex text-white gap-7">
                 <li onClick={List} className='hover:text-black'>Service</li>
                 <li className='hover:text-black'><Link href='/about'>About</Link></li>
-                <li className='hover:text-black'><Link href='/service'>Contact</Link></li>
+                <li className='hover:text-black'><Link href='/contact'>Contact</Link></li>
                 <li className='hover:text-black'><Link href='/help'>Help</Link></li>
             </ul>
         </div>
         <div className="flex items-center gap-2">
-            <button className='border border-white p-3 rounded-lg hover:text-orange-600'>Matchnow</button>
+            <button className='border border-white p-3 rounded-lg hover:text-orange-600'><Link href='/service'>Matchnow</Link></button>
             <FaBars onClick={Adding} className='4xl flex md:hidden '/>
         </div>
     </nav>
@@ -35,8 +35,8 @@ function Navbar (){
         <ul className="flex flex-col text-white gap-7">
             <li onClick={List} className='hover:text-black'>Service</li>
             <li className='hover:text-black'><Link href='/about'>About</Link></li>
-            <li className='hover:text-black'><Link href='/service'>Contact</Link></li>
-            <li className='hover:text-black'><Link href='/help'>Help</Link></li>
+            <li className='hover:text-black'><Link href='/contact'>Contact</Link></li>
+            <li className='hover:text-black'><Link href='/service'>Help</Link></li>
         </ul>
         </div>
        }

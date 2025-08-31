@@ -1,13 +1,12 @@
 import React from 'react'
-import { FaBars, FaMailBulk, FaPhone} from 'react-icons/fa'; 
-import { IconType } from 'react-icons';
+import {  FaMailBulk, FaPhone} from 'react-icons/fa'; 
 import { FaLocationDot, FaWhatsapp } from 'react-icons/fa6';
 
 interface Contact {
-    id: number;
-    icon: IconType;
-    details: string;
-    name: string;
+  id: number;
+  icon: React.ReactNode;
+  details: string;
+  name: string;
 }
 
 const contact : Contact[] =  [
@@ -18,7 +17,7 @@ const contact : Contact[] =  [
 ]
 const Section = () => {
   return (
-    <div className='pt-9'>
+    <div className='pt-9 flex justify-center '>
       <div className='flex'>
         <div className='flex flex-col gap-5 '>
             <h2 className='text-3xl font-bold text-center'>Contact Us</h2>
@@ -26,7 +25,7 @@ const Section = () => {
             <div className='grid grid-cols-1  text-black md:grid-cols-2 gap-5'>
                 {
                     contact.map((item) => (
-                        <div key={item.id} className='flex flex-col items-center gap-3'>
+                        <div key={item.id} className='flex flex-col items-center gap-3 border p-5 text-white bg-orange-500'>
                             {item.icon}
                             <div className='flex text-center flex-col'>
                                 <h2 className='font-semibold'>{item.details}</h2>

@@ -1,6 +1,4 @@
 import React from 'react'
-import Main from './componets/main'
-import Forms from './componets/form'
 import Section from './componets/section'
 const page = () => {
   return (
@@ -9,8 +7,9 @@ const page = () => {
         <div className="flex flex-col p-5 gap-5">
         <h1 className='md:text-8xl sm:text-7xl text-5xl text-center text-white'>CONTACT</h1>
         <div className="flex justify-center">
-            <p className='text-right text-white'>Easily connect with the right legal 
-               Professional for your right legal needs. 
+            <p className='text-right text-white'>
+              Easily connect with the right legal 
+              Professional for your right legal needs. 
             </p>
         </div>
         <div className="flex justify-center gap-2">
@@ -19,12 +18,7 @@ const page = () => {
         </div>
       </div>
       </section>
-      <section className='   p-9'>
-        <div className='grid grid-cols-1 md:grid-cols-2 p-9'>
-          <Forms/>
           <Section/>
-        </div>
-      </section>
     </div>
   )
 }
