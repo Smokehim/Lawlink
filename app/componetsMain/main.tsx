@@ -1,25 +1,35 @@
 import React from 'react'
-import Image from 'next/image'
+
 const Heroe = () => {
   return (
-    <div className=' sm:flex-col  md:flex-col  lg:grid-cols-2 lg:grid gap-9 p-5 bg-orange-500 '>
-      <div className="flex flex-col p-5 gap-5">
-        <h1 className='md:text-8xl sm:text-7xl text-5xl text-left text-white'>Lawlink Legal help, Simplified</h1>
-        <div className="flex text-left">
-            <p className='text-left text-white'>Easily connect with the right legal 
-               Professional for the business. Understand attorney vs 
-               lawyer distinctions and get matched to the 
-                expertise your case demands
+    <div className=' min-h-screen bg-white'>
+      
+      <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-20 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+              Connect with Verified Lawyers in Zambia
+            </h1>
+            <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+              Find trusted legal professionals, get instant consultations, and secure your rights with verified lawyers across Zambia
             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                // onClick={() => onNavigate('client-register')}
+                className="px-8 py-4 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+              >
+                Find a Lawyer
+              </button>
+              <button
+                // onClick={() => onNavigate('client-login')}
+                className="px-8 py-4 bg-white text-blue-600 text-lg rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-colors shadow-lg"
+              >
+                Login / Register
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-2">
-            <button className='bg-white w-30 h-10 p-2 border rounded-lg hover:text-orange-600 border-white'>Startnow</button>
-            <button className='border w-30 h-10 border-white text-white p-2 rounded-lg hover:border-white hover:text-black'>Details</button>
-        </div>
-      </div>
-      <div className="flex  justify-center">
-        <Image src="/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg" alt="alt" width={350} height={350} />
-      </div>
+      </section>
     </div>
   )
 }

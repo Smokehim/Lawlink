@@ -17,7 +17,7 @@ const contact : Contact[] =  [
 ]
 const Section = () => {
   return (
-    <div className='pt-9 flex justify-center '>
+    <div className='pt-9 flex min-h-screen justify-center bg-gradient-to-br from-blue-50 to-indigo-100'>
       <div className='flex'>
         <div className='flex flex-col gap-5 '>
             <h2 className='text-3xl font-bold text-center'>Contact Us</h2>

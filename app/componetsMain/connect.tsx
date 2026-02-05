@@ -1,49 +1,65 @@
 import React from 'react'
-import { IconType } from 'react-icons'; 
-import { FaRecycle, FaMailBulk, FaEnvelope } from 'react-icons/fa'; 
-import Image from 'next/image';
+
+import { CheckCircle,MessageSquare, Shield } from 'lucide-react';
 
 
 
 const Connect = () => {
-    interface CardZ {
-            id: number;
-            icon: IconType;
-            title: string;
-            description: string;
-        }
-    const cards: CardZ[] = [
-            {id:1, icon: FaRecycle, title:"Phone", description:"0969591009"},
-            {id:2, icon: FaMailBulk, title:"Email", description:"mwambajason2@gmail.com"},
-            {id:3, icon: FaEnvelope, title:"Location", description:"Lusaka zambia"},
-            
-        ];
+    
   return (
-    <div className='bg-gray-100 pt-5'>
-      <section className='grid p-3 gap-5 grid-cols-1 md:grid-cols-2'>
-        <div className="flex flex-col">
-            <p>Get In touch</p>
-            <h2 className='text-3xl'>Connect with legal expert now</h2>
-            <p>contact us for business case support</p>
-        </div>
-        <div className="flex flex-col">
-            {
-                cards.map((items)=>(
-                    <div key={items.id} className='flex gap-5'>
-                        <items.icon className='text-4xl text-orange-600' />
-                        <div className="flex flex-col">
-                            <p>{items.title}</p>
-                            <p>{items.description}</p>
-                        </div>
-                    </div>
-                ))
-            }
+    <section className="py-20 bg-orange-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-white mb-16">
+            Why Choose LegalConnect?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {/* Feature 1 */}
+            <div className="text-center">
+              <div className="flex justify-center mb-6">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-8 h-8 text-blue-600" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">
+                Verified Lawyers
+              </h3>
+              <p className="text-white">
+                All lawyers are thoroughly verified and certified by our admin team to ensure quality legal services
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="text-center">
+              <div className="flex justify-center mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <MessageSquare className="w-8 h-8 text-green-600" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold  mb-3">
+                Instant Contact
+              </h3>
+              <p className="text-gray-600">
+                Connect with lawyers instantly and get quick responses to your legal queries
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="text-center">
+              <div className="flex justify-center mb-6">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-purple-600" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                Secure Messaging
+              </h3>
+              <p className="text-gray-600">
+                Your conversations are private and secure with end-to-end encryption
+              </p>
+            </div>
+          </div>
         </div>
       </section>
-      <section>
-        <Image src="/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg" alt="alt" width={350} height={350} />
-      </section>
-    </div>
   )
 }
 

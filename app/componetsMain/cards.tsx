@@ -17,16 +17,18 @@ const Cards = () => {
         {id:6, icon:"", title:"Direct legal guidance", description:"Get clear actionable advice tailored to your business"},
     ];
   return (
-    <div>
-      <p>ATTORNEY VS LAWYER WHAT`S DIFFERENT</p>
-      <h1>Business law experts, matched fast</h1>
-      <div className="grid">
+    <div className='flex-col'>
+      <div className="flex flex-col items-center p-5 m-5">
+        <p className='font-extrabold text-5xl'>ATTORNEY VS LAWYER WHAT`S DIFFERENT</p>
+        <h1 className='text-2xl'>Business law experts, matched fast</h1>
+      </div>
+      <div className="grid grid-cols-2 p-3">
         {
             cards.map((item) => (
-                <div className="flex flex-col p-4 m-2 bg-white rounded-lg shadow" key={item.id}>
+                <div className="flex flex-col m-2 gap-4 p-4 bg-white rounded-lg shadow-lg hover:border-amber-600 hover:cursor-pointer " key={item.id}>
                     {/* You can add an icon here if available */}
-                    <h2 className="text-lg font-bold mb-2">{item.title}</h2>
-                    <p className="text-gray-700 mb-1">{item.description}</p>
+                    <h2 className="text-lg font-bold mb-2 ">{item.title}</h2>
+                    <p className="text-gray-700 mb-1 hover:text-amber-600 hover:text-2xl">{item.description}</p>
                 </div>
             ))
         }

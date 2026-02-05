@@ -8,7 +8,7 @@ const datas = [
 ]
 const Question = () => {
   return (
-    <div className=' flex flex-col p-3 justify-center gap-7'>
+    <div className=' flex flex-col bg-white text-gray-600 p-3 justify-center gap-7'>
       <p className='text-center'>LEGAL FAQS</p>
       <h1 className='text-xl font-bold text-center'>Your legal questions, answered</h1>
       <p className='text-center'>Get clear, direct answers to common questions. 

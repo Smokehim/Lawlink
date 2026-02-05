@@ -12,11 +12,11 @@ const Attorney = () => {
         {id:2, title:"Question before hiring a lawyer", description:" clarity fees process and result"}
     ]
   return (
-    <div>
-      <section className='grid grid-cols-4'>
+    <div className='flex-col justify-center'>
+      <section className='grid lg:grid-cols-4 sm:grid-cols-1 md:grid-cols-2 justify-center'>
         {
             infor.map((items)=>(
-                <div className="flex flex-col" key={items.id}>
+                <div className="flex flex-col  p-4 items-center text-white" key={items.id}>
                     <Image src={items.image} alt="alt" width="200" height="200" />
                     <h2>{items.description}</h2>
                     <p>{items.explanation}</p>
@@ -25,7 +25,7 @@ const Attorney = () => {
         }
         {
             cards.map((items)=>(
-                <div className="flex flex-col border bg-gray-100 justify-center text-black" key={items.description}>
+                <div className="flex flex-col bg-gray-100 justify-center p-4 items-center text-black" key={items.description}>
                     <h2>{items.title}</h2>
                     <p>{items.description}</p>
                 </div>
@@ -33,10 +33,10 @@ const Attorney = () => {
         }
 
       </section>
-      <section className='grid grid-cols-3 gap-2'>
+      <section className='grid lg:grid-cols-4 sm:grid-cols-2 md:grid-cols-2 justify-center'>
         {
             cards.map((items)=>(
-                <div className="flex flex-col bg-gray-100 justify-center text-black" key={items.description}>
+                <div className="flex flex-col bg-gray-100 justify-center p-4 items-center text-black" key={items.description}>
                     <h2>{items.title}</h2>
                     <p>{items.description}</p>
                 </div>
@@ -44,7 +44,7 @@ const Attorney = () => {
         }
         {
             infor.map((items)=>(
-                <div className="flex flex-col" key={items.id}>
+                <div className="flex flex-col p-4 justify-center text-white" key={items.id}>
                     <Image src={items.image} alt="alt" width="200" height="200" />
                     <h2>{items.description}</h2>
                     <p>{items.explanation}</p>

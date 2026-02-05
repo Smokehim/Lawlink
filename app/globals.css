@@ -1,4 +1,9 @@
 @import "tailwindcss";
- #picture{
 
- }
+:root{
+	--font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono", "Noto Sans Mono", monospace;
+}
+
+#picture{
+
+}
