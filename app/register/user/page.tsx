@@ -1,15 +1,17 @@
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserPlus, ArrowLeft } from 'lucide-react';
+import { Shield, ArrowLeft } from 'lucide-react';
 
-export default function AdminRegistration() {
+
+
+export default function ClientRegister() {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
     password: '',
-    confirmPassword: '',
+    gender: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -17,44 +19,43 @@ export default function AdminRegistration() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
     setLoading(true);
     setError('');
 
     try {
-      // This is where you would make the API call to your backend
-      const response = await fetch('/api/admin/register', { // Replace with your actual API endpoint
+      const response = await fetch('http://localhost:3001/registration_User', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fullName: formData.fullName,
+          full_name: formData.fullName,
           email: formData.email,
-          phone: formData.phone,
+          phone_number: formData.phone,
           password: formData.password,
+          gender: formData.gender,
         }),
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        const data = await response.json();
+        // Save user_id and email to localStorage for verification step
+        localStorage.setItem('user_id', data.user_id);
+        localStorage.setItem('user_email', data.email);
+        router.push('/serial');
+      } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+        setError(errorData.message || 'Registration failed. Please try again.');
       }
-
-      // On successful registration, redirect to the admin login page
-      router.push('/logins/adminlogin');
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } catch (error) {
+      console.error(error);
+      setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -62,15 +63,15 @@ export default function AdminRegistration() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Back Button */}
         <button
-          onClick={() => router.push('/logins/adminlogin')}
+          onClick={() => window.history.back()}
           className="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Login
+          Back
         </button>
 
         {/* Card */}
@@ -78,12 +79,12 @@ export default function AdminRegistration() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                <UserPlus className="w-8 h-8 text-gray-700" />
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <Shield className="w-8 h-8 text-blue-600" />
               </div>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Admin Registration</h2>
-            <p className="text-gray-600">Create a new administrator account</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Client Registration</h2>
+            <p className="text-gray-600">Create your account to find lawyers</p>
           </div>
 
           {/* Form */}
@@ -98,11 +99,12 @@ export default function AdminRegistration() {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
-                placeholder="Enter full name"
+                placeholder="Enter your full name"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               />
             </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email
@@ -113,14 +115,15 @@ export default function AdminRegistration() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Enter admin email"
+                placeholder="Enter your email"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               />
             </div>
+
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
+                Phone
               </label>
               <input
                 type="tel"
@@ -128,11 +131,31 @@ export default function AdminRegistration() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="Enter phone number"
+                placeholder="Enter your phone number"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               />
             </div>
+
+            <div>
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                Gender
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white"
+              >
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
@@ -145,47 +168,30 @@ export default function AdminRegistration() {
                 onChange={handleChange}
                 placeholder="Create a password"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               />
             </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm your password"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition"
-              />
-            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
+            >
+              {loading ? 'Registering...' : 'Register'}
+            </button>
 
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-900 transition-colors font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
-            >
-              {loading ? 'Registering...' : 'Register'}
-            </button>
           </form>
 
+          {/* Footer */}
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{' '}
-              <a
-                href="/logins/adminlogin"
-                className="text-gray-800 hover:text-gray-900 font-semibold"
-              >
+              <a href="/logins/userlogin" className="text-blue-600 hover:text-blue-700 font-semibold">
                 Login
               </a>
             </p>

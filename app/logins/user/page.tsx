@@ -5,25 +5,21 @@ import { Shield, ArrowLeft } from 'lucide-react';
 
 
 
-export default function ClientRegister() {
+export default function ClientLogin() {
   const [formData, setFormData] = useState({
-    fullName: '',
     email: '',
-    phone: '',
     password: '',
-    gender: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     try {
-      const response = await fetch('http://localhost:5000/auth/register', {
+      const response = await fetch('http://localhost:3000/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,10 +28,11 @@ export default function ClientRegister() {
       });
 
       if (response.ok) {
-        router.push('/logins/userlogin');
+        router.push('/dashboads/userdashboard');
       } else {
-        setError('Registration failed. Please try again.');
+        setError('Login failed. Please check your credentials.');
       }
+      
     } catch (error) {
       console.error(error);
       setError('An error occurred. Please try again.');
@@ -44,7 +41,7 @@ export default function ClientRegister() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -52,11 +49,11 @@ export default function ClientRegister() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Back Button */}
         <button
-          onClick={() => window.history.back()}
+          // onClick={() => window.history.back()}
           className="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -72,28 +69,12 @@ export default function ClientRegister() {
                 <Shield className="w-8 h-8 text-blue-600" />
               </div>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Client Registration</h2>
-            <p className="text-gray-600">Create your account to find lawyers</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Client Login</h2>
+            <p className="text-gray-600">Sign in to your account</p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Enter your full name"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-              />
-            </div>
-
+          <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email
@@ -111,41 +92,6 @@ export default function ClientRegister() {
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Phone
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Enter your phone number"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
-                Gender
-              </label>
-              <select
-                id="gender"
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white"
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
@@ -155,18 +101,24 @@ export default function ClientRegister() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Create a password"
+                placeholder="Enter your password"
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               />
             </div>
 
+            <div className="flex justify-end">
+              <button type="button" className="text-sm text-blue-600 hover:text-blue-700">
+                Forgot Password?
+              </button>
+            </div>
+
             <button
               type="submit"
-              disabled={loading}
+               disabled={loading}
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
             >
-              {loading ? 'Registering...' : 'Register'}
+              {loading ? 'Logging in...' : 'Login'}
             </button>
 
             {error && (
@@ -179,9 +131,12 @@ export default function ClientRegister() {
           {/* Footer */}
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Already have an account?{' '}
-              <a href="/logins/userlogin" className="text-blue-600 hover:text-blue-700 font-semibold">
-                Login
+              Don&apos;t have an account?{' '}
+              <a
+                href="/register/userRegister"
+                className="text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                Register
               </a>
             </p>
           </div>

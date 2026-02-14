@@ -14,7 +14,7 @@ interface HomeProps {
   clients: Client[];
 }
 
-export default function Home({ lawyers, clients }: HomeProps) {
+export default function Homes({ lawyers, clients }: HomeProps) {
   return (
     <div>
       <h2 className="text-3xl font-bold text-gray-900 mb-6">Admin Dashboard</h2>

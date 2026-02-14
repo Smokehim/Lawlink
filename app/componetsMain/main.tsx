@@ -1,6 +1,14 @@
+"use client";
 import React from 'react'
+import { useRouter } from 'next/navigation'
 
 const Heroe = () => {
+  const router = useRouter()
+  
+  const handleNavigate = (path: string) => {
+    router.push(path)
+  }
+  
   return (
     <div className=' min-h-screen bg-white'>
       
@@ -15,13 +23,13 @@ const Heroe = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                // onClick={() => onNavigate('client-register')}
+                 onClick={() => handleNavigate('/register/user')}
                 className="px-8 py-4 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
               >
                 Find a Lawyer
               </button>
               <button
-                // onClick={() => onNavigate('client-login')}
+                onClick={() => handleNavigate('/logins/user')}
                 className="px-8 py-4 bg-white text-blue-600 text-lg rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-colors shadow-lg"
               >
                 Login / Register

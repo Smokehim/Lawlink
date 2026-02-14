@@ -1,56 +1,103 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Key, ArrowLeft } from 'lucide-react';
 
+type UserType = 'user' | 'lawyer' | 'admin' | null;
+
 export default function VerifyCodePage() {
-  const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
+  const [verificationCode, setVerificationCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userType, setUserType] = useState<UserType>(null);
   const router = useRouter();
 
-  const handleChange = (element: HTMLInputElement, index: number) => {
-    if (isNaN(Number(element.value))) return; // Ensure it's a number
+  useEffect(() => {
+    // Check for user_id, lawyer_id, or admin_id in localStorage
+    const storedUserId = localStorage.getItem('user_id');
+    const storedLawyerId = localStorage.getItem('lawyer_id');
+    const storedAdminId = localStorage.getItem('admin_id');
 
-    const newOtp = [...otp];
-    newOtp[index] = element.value;
-    setOtp(newOtp);
-
-    // Move to next input if a digit is entered
-    if (element.nextSibling && element.value) {
-      (element.nextSibling as HTMLInputElement).focus();
+    if (storedUserId) {
+      setUserId(storedUserId);
+      setUserType('user');
+    } else if (storedLawyerId) {
+      setUserId(storedLawyerId);
+      setUserType('lawyer');
+    } else if (storedAdminId) {
+      setUserId(storedAdminId);
+      setUserType('admin');
+    } else {
+      setError('No user ID found. Please complete registration first.');
+      router.push('/register/user');
     }
-  };
+  }, [router]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    // Move to previous input on backspace if current is empty
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      (e.currentTarget.previousSibling as HTMLInputElement).focus();
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVerificationCode(e.target.value.toUpperCase());
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
-    const serialCode = otp.join('');
+    
+    if (!verificationCode.trim()) {
+      setError('Please enter the verification code');
+      return;
+    }
+
+    if (verificationCode.length !== 6) {
+      setError('Verification code must be 6 digits');
+      return;
+    }
+
+    if (!userId || !userType) {
+      setError('User ID not found. Please register again.');
+      return;
+    }
+
+    setLoading(true);
     try {
-      const response = await fetch('/api/verify-serial', { // Example API endpoint
+      // Determine which endpoint to use based on user type
+      let endpoint = '/verify_user';
+      let bodyKey = 'user_id';
+      let redirectPath = '/dash/user';
+
+      switch (userType) {
+        case 'lawyer':
+          endpoint = '/verify_lawyer';
+          bodyKey = 'lawyer_id';
+          redirectPath = '/dash/lawyers';
+          break;
+        case 'admin':
+          endpoint = '/verify_admin';
+          bodyKey = 'admin_id';
+          redirectPath = '/dash/admin';
+          break;
+      }
+
+      const response = await fetch(`http://localhost:3001${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code: serialCode }),
+        body: JSON.stringify({ [bodyKey]: userId, verificationCode: verificationCode }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Invalid serial code.');
+        throw new Error(errorData.message || 'Invalid verification code.');
       }
 
-      // On successful verification, you can redirect the user
-      // For example, to the login page:
-      router.push('/logins/userlogin');
+      // Clear localStorage after successful verification
+      localStorage.removeItem('user_id');
+      localStorage.removeItem('lawyer_id');
+      localStorage.removeItem('admin_id');
+      localStorage.removeItem('user_email');
+
+      // On successful verification, redirect to appropriate dashboard
+      router.push(redirectPath);
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
@@ -77,33 +124,25 @@ export default function VerifyCodePage() {
                 <Key className="w-8 h-8 text-green-600" />
               </div>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Enter Serial Code</h2>
-            <p className="text-gray-600">Please enter the code to verify your account.</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Verify Email</h2>
+            <p className="text-gray-600">Enter the 6-digit code sent to your email.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="otp-0" className="block text-sm font-medium text-gray-700 mb-2 text-center">
-                Serial Code
+              <label htmlFor="verification-code" className="block text-sm font-medium text-gray-700 mb-2">
+                Verification Code (6 digits)
               </label>
-              <div className="flex justify-center gap-2 md:gap-4">
-                {otp.map((data, index) => {
-                  return (
-                    <input
-                      key={index}
-                      id={`otp-${index}`}
-                      type="text"
-                      name="otp"
-                      maxLength={1}
-                      className="w-12 h-14 md:w-14 md:h-16 text-center text-2xl border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition"
-                      value={data}
-                      onChange={e => handleChange(e.target, index)}
-                      onKeyDown={e => handleKeyDown(e, index)}
-                      onFocus={e => e.target.select()}
-                    />
-                  );
-                })}
-              </div>
+              <input
+                id="verification-code"
+                type="text"
+                placeholder="Enter 6-digit code"
+                maxLength={6}
+                inputMode="numeric"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition text-center text-2xl font-mono tracking-widest"
+                value={verificationCode}
+                onChange={handleChange}
+              />
             </div>
 
             {error && (

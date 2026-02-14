@@ -1,7 +1,7 @@
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, ArrowLeft, UserPlus } from 'lucide-react';
+import {  ArrowLeft, UserPlus } from 'lucide-react';
 
 
 
@@ -12,12 +12,12 @@ export default function LawyerRegistration() {
     phone: '',
     province: '',
     district: '',
-    licensingBody: '',
     specialization: '',
     barNumber: '',
     password: '',
     confirmPassword: '',
   });
+  const [licenseFile, setLicenseFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -30,29 +30,34 @@ export default function LawyerRegistration() {
     }
     setLoading(true);
     setError('');
+
     try {
-      const response = await fetch('http://localhost:5000/auth/lawyer/register', {
+      const response = await fetch('http://localhost:3001/registration_Lawyer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fullName: formData.fullName,
+          full_name: formData.fullName,
           email: formData.email,
-          phone: formData.phone,
+          phone_number: formData.phone,
           province: formData.province,
           district: formData.district,
-          licensingBody: formData.licensingBody,
           specialization: formData.specialization,
-          barNumber: formData.barNumber,
+          bar_number: formData.barNumber,
           password: formData.password,
         }),
       });
 
       if (response.ok) {
-        router.push('/logins/lawyerlogin');
+        const data = await response.json();
+        // Save lawyer_id and email to localStorage for verification step
+        localStorage.setItem('lawyer_id', data.lawyer_id);
+        localStorage.setItem('lawyer_email', data.email);
+        router.push('/serial');
       } else {
-        setError('Registration failed. Please try again.');
+        const errorData = await response.json();
+        setError(errorData.message || 'Registration failed. Please try again.');
       }
       
     } catch (error) {
@@ -173,16 +178,14 @@ export default function LawyerRegistration() {
               />
             </div>
             <div>
-              <label htmlFor="licensingBody" className="block text-sm font-medium text-gray-700 mb-2">
-                Licensing Body
+              <label htmlFor="license" className="block text-sm font-medium text-gray-700 mb-2">
+                Upload License
               </label>
               <input
-                type="text"
-                id="licensingBody"
-                name="licensingBody"
-                value={formData.licensingBody}
-                onChange={handleChange}
-                placeholder="e.g. Bar Council of [Province]"
+                type="file"
+                id="license"
+                name="license"
+                onChange={(e) => setLicenseFile(e.target.files ? e.target.files[0] : null)}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               />
