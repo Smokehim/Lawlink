@@ -12,7 +12,9 @@ type MessageType = {
     replies: Reply[]
 }
 
-
+interface MessageProps {
+  onNavigate?: (section: 'home' | 'search' | 'messages' | 'profile') => void;
+}
 
 const mockMessages: MessageType[] = [
     {
@@ -33,7 +35,7 @@ const mockMessages: MessageType[] = [
     },
 ];
 
-export default function Message() {
+export default function Message({ onNavigate }: MessageProps) {
     const [openComposer, setOpenComposer] = useState<string | null>(null)
     const [replyText, setReplyText] = useState<Record<string, string>>({})
     const [messages, setMessages] = useState<MessageType[]>(() =>

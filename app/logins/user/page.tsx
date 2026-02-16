@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/app/context/AuthContext';
 
 
 
@@ -13,13 +14,14 @@ export default function ClientLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:3000/auth/login', {
+      const response = await fetch('http://localhost:3001/login_user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,9 +30,13 @@ export default function ClientLogin() {
       });
 
       if (response.ok) {
-        router.push('/dashboads/userdashboard');
+        const data = await response.json();
+        // Save token and user data to context and localStorage
+        login(data.token, data.user);
+        router.push('/dash/user');
       } else {
-        setError('Login failed. Please check your credentials.');
+        const data = await response.json();
+        setError(data.message || 'Login failed. Please check your credentials.');
       }
       
     } catch (error) {

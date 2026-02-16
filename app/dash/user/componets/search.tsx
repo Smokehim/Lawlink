@@ -8,10 +8,9 @@ import {
   
 } from 'lucide-react';
 
-
-
-
-
+interface SearchsProps {
+  onNavigate?: (section: 'home' | 'search' | 'messages' | 'profile') => void;
+}
 
 const mockLawyers = [
   {
@@ -59,7 +58,7 @@ const mockLawyers = [
     phone: '+260 966 234 567',
   },
 ];
-export default function Searchs() {
+export default function Searchs({ onNavigate }: SearchsProps) {
     const [filters, setFilters] = useState({
         province: '',
         district: '',

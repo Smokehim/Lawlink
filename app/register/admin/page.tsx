@@ -44,8 +44,7 @@ export default function AdminRegistration() {
       }
 
       const data = await response.json();
-      // Save admin_id and email to localStorage for verification step
-      localStorage.setItem('admin_id', data.admin_id);
+      // Save email to localStorage for verification step
       localStorage.setItem('admin_email', data.email);
 
       // On successful registration, redirect to verification page

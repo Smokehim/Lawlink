@@ -51,8 +51,7 @@ export default function LawyerRegistration() {
 
       if (response.ok) {
         const data = await response.json();
-        // Save lawyer_id and email to localStorage for verification step
-        localStorage.setItem('lawyer_id', data.lawyer_id);
+        // Save email to localStorage for verification step
         localStorage.setItem('lawyer_email', data.email);
         router.push('/serial');
       } else {

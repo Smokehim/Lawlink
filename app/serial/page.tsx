@@ -2,105 +2,58 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Key, ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/app/context/AuthContext';
 
 type UserType = 'user' | 'lawyer' | 'admin' | null;
 
 export default function VerifyCodePage() {
-  const [verificationCode, setVerificationCode] = useState('');
+  const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [userId, setUserId] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
   const [userType, setUserType] = useState<UserType>(null);
   const router = useRouter();
+  const { login } = useAuth();
 
   useEffect(() => {
-    // Check for user_id, lawyer_id, or admin_id in localStorage
-    const storedUserId = localStorage.getItem('user_id');
-    const storedLawyerId = localStorage.getItem('lawyer_id');
-    const storedAdminId = localStorage.getItem('admin_id');
-
-    if (storedUserId) {
-      setUserId(storedUserId);
-      setUserType('user');
-    } else if (storedLawyerId) {
-      setUserId(storedLawyerId);
-      setUserType('lawyer');
-    } else if (storedAdminId) {
-      setUserId(storedAdminId);
-      setUserType('admin');
+    const userEmail = localStorage.getItem('user_email') || localStorage.getItem('lawyer_email') || localStorage.getItem('admin_email');
+    const type = localStorage.getItem('user_email') ? 'user' : localStorage.getItem('lawyer_email') ? 'lawyer' : 'admin';
+    if (userEmail) {
+      setEmail(userEmail);
+      setUserType(type);
     } else {
-      setError('No user ID found. Please complete registration first.');
       router.push('/register/user');
     }
   }, [router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVerificationCode(e.target.value.toUpperCase());
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
-    if (!verificationCode.trim()) {
-      setError('Please enter the verification code');
-      return;
-    }
-
-    if (verificationCode.length !== 6) {
-      setError('Verification code must be 6 digits');
-      return;
-    }
-
-    if (!userId || !userType) {
-      setError('User ID not found. Please register again.');
-      return;
-    }
-
+    if (code.length !== 6) return setError('Code must be 6 digits');
     setLoading(true);
+
     try {
-      // Determine which endpoint to use based on user type
-      let endpoint = '/verify_user';
-      let bodyKey = 'user_id';
-      let redirectPath = '/dash/user';
+      const endpoint = userType === 'user' ? '/verify_user' : userType === 'lawyer' ? '/verify_lawyer' : '/verify_admin';
+      const redirectPath = userType === 'user' ? '/dash/user' : userType === 'lawyer' ? '/dash/lawyers' : '/dash/admin';
 
-      switch (userType) {
-        case 'lawyer':
-          endpoint = '/verify_lawyer';
-          bodyKey = 'lawyer_id';
-          redirectPath = '/dash/lawyers';
-          break;
-        case 'admin':
-          endpoint = '/verify_admin';
-          bodyKey = 'admin_id';
-          redirectPath = '/dash/admin';
-          break;
-      }
-
-      const response = await fetch(`http://localhost:3001${endpoint}`, {
+      const res = await fetch(`http://localhost:3001${endpoint}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ [bodyKey]: userId, verificationCode: verificationCode }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, verificationCode: code }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Invalid verification code.');
-      }
+      if (!res.ok) throw new Error('Invalid verification code');
 
-      // Clear localStorage after successful verification
-      localStorage.removeItem('user_id');
-      localStorage.removeItem('lawyer_id');
-      localStorage.removeItem('admin_id');
+      const data = await res.json();
+      // Save token and user data from verification response
+      login(data.token, data.user);
+
       localStorage.removeItem('user_email');
-
-      // On successful verification, redirect to appropriate dashboard
+      localStorage.removeItem('lawyer_email');
+      localStorage.removeItem('admin_email');
       router.push(redirectPath);
-
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
+      setError(err instanceof Error ? err.message : 'Verification failed');
     } finally {
       setLoading(false);
     }
@@ -109,53 +62,29 @@ export default function VerifyCodePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <button
-          onClick={() => router.back()}
-          className="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
+        <button onClick={() => router.back()} className="mb-4 flex items-center text-gray-600 hover:text-gray-900">
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back
         </button>
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <Key className="w-8 h-8 text-green-600" />
-              </div>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Verify Email</h2>
-            <p className="text-gray-600">Enter the 6-digit code sent to your email.</p>
+            <Key className="w-12 h-12 text-green-600 mx-auto mb-2" />
+            <h2 className="text-2xl font-bold text-gray-900">Verify Email</h2>
+            <p className="text-gray-600 text-sm">Enter the 6-digit code</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="verification-code" className="block text-sm font-medium text-gray-700 mb-2">
-                Verification Code (6 digits)
-              </label>
-              <input
-                id="verification-code"
-                type="text"
-                placeholder="Enter 6-digit code"
-                maxLength={6}
-                inputMode="numeric"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition text-center text-2xl font-mono tracking-widest"
-                value={verificationCode}
-                onChange={handleChange}
-              />
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
-            >
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Enter 6-digit code"
+              maxLength={6}
+              inputMode="numeric"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-center text-2xl font-mono tracking-widest"
+            />
+            {error && <div className="bg-red-50 text-red-700 px-3 py-2 rounded text-sm">{error}</div>}
+            <button type="submit" disabled={loading} className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50">
               {loading ? 'Verifying...' : 'Verify Account'}
             </button>
           </form>

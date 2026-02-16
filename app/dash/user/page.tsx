@@ -1,9 +1,11 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Homes from './componets/home';
 import Message from './componets/message';
 import Profile from './componets/profile';
 import Searchs from './componets/search';
+import { useAuth } from '@/app/context/AuthContext';
 import { 
   Home, 
   Search, 
@@ -39,14 +41,15 @@ const mockMessages = [
 export default function ClientDashboard() {
   const [currentSection, setCurrentSection] = useState<Section>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+  const { user, logout, isLoading } = useAuth();
+  const router = useRouter();
 
-  
-
-  const handleLogout = () => {
-    localStorage.removeItem('userToken');
-    window.location.href = '/userlogin';
-  };
+  useEffect(() => {
+    // Redirect if not authenticated
+    if (!isLoading && !user) {
+      router.push('/logins/user');
+    }
+  }, [user, isLoading, router]);
   
   
 
@@ -63,7 +66,7 @@ export default function ClientDashboard() {
         return <Message onNavigate={(section) => setCurrentSection(section)} />;
 
       case 'profile':
-        return <Profile />;
+        return <Profile onNavigate={(section) => setCurrentSection(section)} />;
       default:
         return null;
     }
@@ -153,7 +156,10 @@ export default function ClientDashboard() {
 
         <div className="absolute bottom-0 w-full p-4 border-t">
           <button
-            onClick={handleLogout}
+            onClick={() => {
+              logout();
+              router.push('/logins/user');
+            }}
             className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
@@ -175,9 +181,9 @@ export default function ClientDashboard() {
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">User</span>
+              <span className="text-gray-700">{user?.fullName || 'User'}</span>
               <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-semibold">U</span>
+                <span className="text-white font-semibold">{user?.fullName?.charAt(0).toUpperCase() || 'U'}</span>
               </div>
             </div>
           </div>
@@ -185,7 +191,13 @@ export default function ClientDashboard() {
 
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto p-6">
-          {renderContent()}
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-gray-500">Loading...</p>
+            </div>
+          ) : (
+            renderContent()
+          )}
         </main>
       </div>
 

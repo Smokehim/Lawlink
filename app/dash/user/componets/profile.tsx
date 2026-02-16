@@ -11,7 +11,11 @@ interface User {
   role: 'client' | 'lawyer' | 'admin';
 }
 
-export default function Profile() {
+interface ProfileProps {
+  onNavigate?: (section: 'home' | 'search' | 'messages' | 'profile') => void;
+}
+
+export default function Profile({ onNavigate }: ProfileProps) {
     const [profileData, setProfileData] = useState<User | null>(null);
     
     // Initialize with mock user data (no API call)
