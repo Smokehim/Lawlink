@@ -1,6 +1,7 @@
 import React from 'react'
 import {  FaMailBulk, FaPhone} from 'react-icons/fa'; 
 import { FaLocationDot, FaWhatsapp } from 'react-icons/fa6';
+import { homeColors } from '../../interfaces/colors'
 
 interface Contact {
   id: number;
@@ -17,19 +18,21 @@ const contact : Contact[] =  [
 ]
 const Section = () => {
   return (
-    <div className='pt-9 flex min-h-screen justify-center bg-gradient-to-br from-blue-50 to-indigo-100'>
-      <div className='flex'>
-        <div className='flex flex-col gap-5 '>
-            <h2 className='text-3xl font-bold text-center'>Contact Us</h2>
-            <p className='text-gray-500 md:p-5 text-center'>We are here to assist you with any legal inquiries or concerns you may have. Reach out to us through the following channels:</p>
-            <div className='grid grid-cols-1  text-black md:grid-cols-2 gap-5'>
+    <div className='pt-20 pb-20 flex min-h-screen justify-center items-center bg-white'>
+      <div className='w-full max-w-5xl px-4'>
+        <div className='flex flex-col items-center gap-10'>
+            <div className='text-center'>
+              <h2 className={`${homeColors.textPrimary} text-4xl font-bold mb-4`}>Contact Information</h2>
+              <p className='text-gray-600 max-w-2xl'>Each of these channels is monitored by our team. Choose the method that works best for you.</p>
+            </div>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full'>
                 {
                     contact.map((item) => (
-                        <div key={item.id} className='flex flex-col items-center gap-3 border p-5 text-white bg-orange-500'>
-                            {item.icon}
+                        <div key={item.id} className='flex flex-col items-center gap-3 border-2 border-blue-200 p-8 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 hover:shadow-lg transition-shadow'>
+                            <div className='text-blue-600'>{item.icon}</div>
                             <div className='flex text-center flex-col'>
-                                <h2 className='font-semibold'>{item.details}</h2>
-                                <p>{item.name}</p>
+                                <h2 className={`${homeColors.textPrimary} font-semibold text-lg`}>{item.details}</h2>
+                                <p className='text-gray-700 mt-1'>{item.name}</p>
                             </div>
                         </div>
                     ))

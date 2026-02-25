@@ -32,7 +32,7 @@ export default function LawyerRegistration() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/registration_Lawyer', {
+      const response = await fetch('http://localhost:3002/registration_Lawyer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -272,7 +272,7 @@ export default function LawyerRegistration() {
             <p className="text-gray-600">
               Already have an account?{' '}
               <a
-                href="/logins/lawyerlogin"
+                href="/logins/lawyer"
                 className="text-blue-600 hover:text-blue-700 font-semibold"
               >
                 Login

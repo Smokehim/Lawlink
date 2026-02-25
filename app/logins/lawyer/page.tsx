@@ -2,8 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Scale, ArrowLeft } from 'lucide-react';
-
-
+import { useAuth } from '@/app/context/AuthContext';
 
 export default function LawyerLogin() {
   const [formData, setFormData] = useState({
@@ -13,6 +12,7 @@ export default function LawyerLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,27 +20,28 @@ export default function LawyerLogin() {
     setError('');
 
     try {
-      const response = await fetch('/api/lawyer-login', {
+      const response = await fetch('http://localhost:3002/login_lawyer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        const data = await response.json();
+        setError(data.message || 'Login failed. Please check your credentials.');
+        return;
       }
 
-      const result = await response.json();
-      localStorage.setItem('lawyerToken', result.token);
-      // Redirect to lawyer dashboard
-      router.push('/lawyerdash');
+      const data = await response.json();
+      // Save token and user data to context and localStorage
+      login(data.token, data.user);
+      router.push('/dash/lawyers');
+
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error(err);
+      setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

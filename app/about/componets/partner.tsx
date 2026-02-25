@@ -1,11 +1,13 @@
 import React from 'react'
 import PartnerCard from './partnercard';
+import { homeColors } from '../../interfaces/colors'
+
 const Partners = () => {
   return (
     <div>
       <div className="flex items-center gap-2">
-        <p className='text-white'>Why us</p>
-        <hr className='text-white w-20' />
+        <p className={`${homeColors.textPrimary}`}>Our Partners</p>
+        <hr className='w-20 border-gray-300' />
       </div>
       <div className='flex justify-center p-5'>
         <PartnerCard/>

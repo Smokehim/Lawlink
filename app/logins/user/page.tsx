@@ -15,13 +15,13 @@ export default function ClientLogin() {
   const [error, setError] = useState('');
   const router = useRouter();
   const { login } = useAuth();
-
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:3001/login_user', {
+      const response = await fetch('http://localhost:3002/login_user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,6 +33,7 @@ export default function ClientLogin() {
         const data = await response.json();
         // Save token and user data to context and localStorage
         login(data.token, data.user);
+        
         router.push('/dash/user');
       } else {
         const data = await response.json();

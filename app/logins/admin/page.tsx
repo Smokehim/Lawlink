@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/app/context/AuthContext';
 
 export default function AdminLogin() {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,24 +20,24 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const response = await fetch('/api/admin/login', { // Replace with your actual API endpoint
+      const response = await fetch('http://localhost:3001/login_admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+        const data = await response.json();
+        setError(data.message || 'Login failed. Please check your credentials.');
+        return;
       }
 
-      // On successful login, redirect to the admin dashboard
-      router.push('/admindashboard'); // Adjust if your dashboard route is different
+      const data = await response.json();
+      // Save token and user data to context and localStorage
+      login(data.token, data.user);
+      router.push('/dash/admin');
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');

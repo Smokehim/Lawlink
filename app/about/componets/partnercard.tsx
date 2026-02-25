@@ -2,9 +2,7 @@ import React from 'react'
 import Image from 'next/image';
 import { FaFacebook, FaInstagram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
-
-
-
+import { homeColors } from '../../interfaces/colors'
 
 const PartnerCard = () => {
     const Datas = [
@@ -22,13 +20,13 @@ const PartnerCard = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
       {
         Datas.map((items)=>(
-             <div key={items.id} className='flex flex-col'>
-                <Image src={items.image} alt="alt" width={350} height={350} />
-                <div className="flex">
-                    <h1>{items.name}</h1>
-                    <p>PARTNER</p>
+             <div key={items.id} className='flex flex-col items-center'>
+                <Image src={items.image} alt={items.name} width={350} height={350} />
+                <div className="flex flex-col items-center mt-2">
+                    <h1 className={homeColors.textPrimary}>{items.name}</h1>
+                    <p className={`${homeColors.textPrimary} text-sm`}>PARTNER</p>
                 </div>
-                <div className="flex">
+                <div className="flex justify-center space-x-2 mt-2 text-gray-600">
                     <FaFacebook  className='text-2xl'/>
                     <FaXTwitter className='text-2xl'/>
                      <FaInstagram className='text-2xl'/>

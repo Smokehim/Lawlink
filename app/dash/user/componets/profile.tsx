@@ -1,7 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react';
-
-
+import { useAuth } from '@/app/context/AuthContext';
 interface User {
   id: string;
   email: string;
@@ -11,34 +10,98 @@ interface User {
   role: 'client' | 'lawyer' | 'admin';
 }
 
-interface ProfileProps {
-  onNavigate?: (section: 'home' | 'search' | 'messages' | 'profile') => void;
-}
-
-export default function Profile({ onNavigate }: ProfileProps) {
+export default function Profile() {
     const [profileData, setProfileData] = useState<User | null>(null);
-    
-    // Initialize with mock user data (no API call)
-    useEffect(() => {
-        const mockUser: User = {
-            id: '1',
-            email: 'client@example.com',
-            fullName: 'John Doe',
-            phone: '+260 977 123 456',
-            gender: 'male',
-            role: 'client',
-        };
-        setProfileData(mockUser);
-    }, []);
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
+    const { user, token } = useAuth();
 
-    const handleProfileUpdate = (e: React.FormEvent) => {
+    useEffect(() => {
+        if (user) {
+            const userData: User = {
+                id: user.userId?.toString() || 'default-user-id',
+                email: user.email || '',
+                fullName: user.fullName || '',
+                phone: '',
+                gender: 'Not specified',
+                role: 'client',
+            };
+            setProfileData(userData);
+        }
+    }, [user]);
+
+    const handleProfileUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
-        alert('Profile updated successfully!');
+        setLoading(true);
+        setError(null);
+        setSuccess(false);
+
+        if (!profileData || !user) {
+            setError('Profile data not loaded');
+            setLoading(false);
+            return;
+        }
+
+        const updatePayload: {
+            full_name: string;
+            email: string;
+            phone_number: string;
+            gender: string;
+            password?: string;
+            user_id: number
+        } = {
+            full_name: profileData.fullName,
+            email: profileData.email,
+            phone_number: profileData.phone,
+            gender: profileData.gender,
+            user_id: user.userId 
+        };
+
+        if (password) {
+            updatePayload.password = password;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3002/updateUser/:user_id`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(updatePayload),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to update profile');
+            }
+
+            setSuccess(true);
+            setPassword('');
+            setTimeout(() => setSuccess(false), 3000);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Profile Settings</h2>
+            {error && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                    {error}
+                </div>
+            )}
+            {success && (
+                <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+                    Profile updated successfully!
+                </div>
+            )}
             <div className="bg-white rounded-lg shadow-md p-6">
                 {profileData ? (
                     <form onSubmit={handleProfileUpdate} className="space-y-5">
@@ -91,15 +154,18 @@ export default function Profile({ onNavigate }: ProfileProps) {
                             <input
                                 type="password"
                                 title="Password"
-                                placeholder="Enter new password"
+                                placeholder="Enter new password (leave blank to keep current)"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                             />
                         </div>
                         <button
                             type="submit"
-                            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                            disabled={loading}
+                            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
-                            Update Profile
+                            {loading ? 'Updating...' : 'Update Profile'}
                         </button>
                     </form>
                 ) : (

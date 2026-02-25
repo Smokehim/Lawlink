@@ -28,13 +28,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Load user data from localStorage on mount
   useEffect(() => {
     const storedToken = localStorage.getItem('userToken');
-    const storedUser = localStorage.getItem('userData');
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+    let storedUser = localStorage.getItem('userData');
+
+    // localStorage can sometimes contain the string "undefined" if something
+    // attempted to store an undefined value. JSON.parse will throw in that case
+    // and cause the whole provider to fail, as seen in the reported error.  We
+    // guard against that and remove the bad value so the app recovers.
+    if (storedUser === "undefined") {
+      console.warn('Clearing malformed userData from localStorage');
+      localStorage.removeItem('userData');
+      storedUser = null;
     }
-    
+
+    if (storedToken && storedUser) {
+      try {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+      } catch (err) {
+        console.error('Unable to parse stored user data, clearing it', err);
+        localStorage.removeItem('userData');
+      }
+    }
+
     setIsLoading(false);
   }, []);
 

@@ -1,5 +1,7 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/context/AuthContext';
 import Home from './componets/home';
 import Clients from './componets/clients';
 import Availability from './componets/availability';
@@ -74,6 +76,15 @@ export default function LawyerDashboard() {
     certificates: ['Law Degree - University of Zambia', 'Bar License - 2020'],
   });
   const [requests, setRequests] = useState(mockRequests);
+  const { user, logout, isLoading } = useAuth();
+  const router = useRouter();
+  
+  useEffect(() => {
+    // Redirect if not authenticated
+    if (!isLoading && !user) {
+      router.push('/logins/lawyer');
+    }
+  }, [user, isLoading, router]);
   
   // Messages state (shared with clients action)
   const [clientMessages, setClientMessages] = useState([
@@ -277,7 +288,10 @@ export default function LawyerDashboard() {
 
         <div className="absolute bottom-0 w-full p-4 border-t">
           <button
-            onClick={handleLogout}
+            onClick={() => {
+              logout();
+              router.push('/logins/lawyer');
+            }}
             className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
@@ -299,10 +313,10 @@ export default function LawyerDashboard() {
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">{profileData?.fullName || 'Lawyer'}</span>
+              <span className="text-gray-700">{user?.fullName || 'Lawyer'}</span>
               <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-semibold">
-                  {profileData?.fullName?.charAt(0) || 'L'}
+                  {user?.fullName?.charAt(0).toUpperCase() || 'L'}
                 </span>
               </div>
             </div>
@@ -311,7 +325,13 @@ export default function LawyerDashboard() {
 
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto p-6">
-          {renderContent()}
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-gray-500">Loading...</p>
+            </div>
+          ) : (
+            renderContent()
+          )}
         </main>
       </div>
 

@@ -1,11 +1,11 @@
 import MainService from "./componets/MainServicw"
-import Views from "./componets/views"
 import Footer from "../componetsMain/footer"
+import Navbar from "../componetsMain/navbar"
  function Service(){
     return(
         <div>
+            <Navbar/>
             <MainService/>
-            <Views/>
             <Footer/>
         </div>
     )

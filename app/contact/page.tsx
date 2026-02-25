@@ -1,26 +1,28 @@
 import React from 'react'
 import Section from './componets/section'
 import Navbar from '../componetsMain/navbar'
+import { homeColors } from '../interfaces/colors'
+
 const page = () => {
   return (
     <div>
       <Navbar/>
-      <section className='bg-white '>
-        <div className="flex flex-col p-5 gap-5">
-        <h1 className='md:text-8xl sm:text-7xl text-5xl text-center text-gray-900'>CONTACT</h1>
-        <div className="flex justify-center">
-            <p className='text-right text-gray-900'>
-              Easily connect with the right legal 
-              Professional for your right legal needs. 
+      <section className='bg-gradient-to-br from-blue-50 to-indigo-100 py-20'>
+        <div className="flex flex-col p-5 gap-8 max-w-4xl mx-auto">
+          <h1 className={`${homeColors.textPrimary} md:text-7xl sm:text-6xl text-5xl text-center font-bold`}>Get in Touch</h1>
+          <div className="flex justify-center">
+            <p className={`${homeColors.textPrimary} text-center max-w-2xl text-lg`}>
+              Have questions or need legal assistance? Our team is here to help. Reach out and we will get back to you promptly.
             </p>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+            <button className='bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-all hover:bg-blue-700 shadow-lg'>
+              Send a Message
+            </button>
+          </div>
         </div>
-        <div className="flex justify-center gap-2">
-            <button className='bg-blue-950 w-30 h-10 p-2 border rounded-lg hover:text-orange-600 border-white'>Startnow</button>
-            <button className='border w-30 h-10 border-white text-white p-2 rounded-lg hover:border-white hover:text-black'>Details</button>
-        </div>
-      </div>
       </section>
-          <Section/>
+      <Section/>
     </div>
   )
 }

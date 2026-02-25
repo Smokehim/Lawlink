@@ -36,7 +36,7 @@ export default function VerifyCodePage() {
       const endpoint = userType === 'user' ? '/verify_user' : userType === 'lawyer' ? '/verify_lawyer' : '/verify_admin';
       const redirectPath = userType === 'user' ? '/dash/user' : userType === 'lawyer' ? '/dash/lawyers' : '/dash/admin';
 
-      const res = await fetch(`http://localhost:3001${endpoint}`, {
+      const res = await fetch(`http://localhost:3002${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, verificationCode: code }),
