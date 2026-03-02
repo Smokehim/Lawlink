@@ -5,18 +5,24 @@ import { homeColors } from '../../interfaces/colors'
 const Article = () => {
   return (
     <div className='grid grid-cols-1 md:grid-cols-2 md:justify-center md:p-5 '>
-      <div className='p-5'>
+      <div className='p-5 text-center flex flex-col justify-center'>
         <p className={homeColors.textPrimary}>
-            Lorem ipsum dolor sit, amet consectetur
-            adipisicing elit. Cupiditate,
-            necessitatibus alias illum adipisci cum
-            qui temporibus. Possimus quod saepe
-            consectetur aliquid! Ducimus saepe
-            sapiente accusamus maiores vero libero quo!
+            We are dedicated to simplifying access
+             to legal services by connecting individuals and businesses with
+              trusted legal professionals. Our platform
+               was created to remove barriers, reduce 
+               uncertainty, and ensure that everyone
+             can receive the legal support they deserve.
+             We believe justice should be accessible, t
+             ransparent, and efficient. By combining 
+             technology with professional legal expertise, 
+             we provide a secure environment where clients 
+             can confidently seek guidance and 
+             representation.
         </p>
       </div>
-      <div className='flex justify-center items-center p-5'>
-        <Image src="/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg" alt="about" width={350} height={350} />
+      <div className='flex justify-center items-center  p-5'>
+        <Image src="/images/stutu.jpg" alt="about" className="rounded-xl shadow-3xl" width={500} height={500} />
       </div>
     </div>
   )

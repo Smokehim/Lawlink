@@ -11,7 +11,10 @@ const page = () => {
     // top‑level wrapper applies a background image with a blue/indigo gradient overlay
     <div className="relative min-h-screen">
       {/* background image placed absolutely behind everything */}
-      <div className="absolute inset-0 bg-[url('/images/about-bg.jpg')] bg-cover bg-center opacity-20" />
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-20" 
+        style={{ backgroundImage: "url('/images/thelawofficeofbarryejanay-business-law-10021863_1920.jpg')" }}
+      />
       {/* gradient overlay ensures the page keeps home page colors but no orange */}
       <div className={`${homeColors.bgGradient} relative z-10`}> 
         <Navbar />

@@ -8,11 +8,11 @@ import Footer from "./componetsMain/footer";
 import Navbar from "./componetsMain/navbar";
 export default function Home() {
   return (
-    <div className="p-0 ">
+    <div className="p-0  ">
       <header>
         <Navbar/>
       </header>
-      <main>
+      <main className="bg-gradient-to-br from-blue-50 to-indigo-100">
         <section>
           <Heroe/>
         </section>

@@ -17,23 +17,26 @@ const Cards = () => {
         {id:6, icon:"", title:"Direct legal guidance", description:"Get clear actionable advice tailored to your business"},
     ];
   return (
-    <div className='flex-col'>
+    <div className='flex-col  text-white backdrop-blur-md'
+    style={{ backgroundImage: "url('/images/thelawofficeofbarryejanay-business-law-10021863_1920.jpg')" }}>
       <div className="flex flex-col items-center p-5 m-5">
-        <p className='font-extrabold text-5xl'>ATTORNEY VS LAWYER WHAT`S DIFFERENT</p>
+        <p className='font-extrabold text-2xl sm:text-xl md:text-3xl lg:text-4xl'>ATTORNEY VS LAWYER WHAT`S DIFFERENT</p>
         <h1 className='text-2xl'>Business law experts, matched fast</h1>
       </div>
       <div className="grid grid-cols-2 p-3">
         {
             cards.map((item) => (
-                <div className="flex flex-col m-2 gap-4 p-4 bg-white rounded-lg shadow-lg hover:border-amber-600 hover:cursor-pointer " key={item.id}>
+                <div className="flex flex-col m-2 gap-4 p-4 bg-white/10 backdrop-blur-md rounded-xl p-6 shadow-lg hover:border-amber-600 hover:cursor-pointer " key={item.id}>
                     {/* You can add an icon here if available */}
                     <h2 className="text-lg font-bold mb-2 ">{item.title}</h2>
-                    <p className="text-gray-700 mb-1 hover:text-amber-600 hover:text-2xl">{item.description}</p>
+                    <p className=" mb-1 hover:text-amber-600 hover:text-2xl">{item.description}</p>
                 </div>
             ))
         }
       </div>
     </div>
+
+
   )
 }
 

@@ -1,12 +1,15 @@
 import React from 'react'
-import Navbar from '../componetsMain/navbar'
+import Navbar from "../componetsMain/navbar"
 import { homeColors } from '../interfaces/colors'
 import Footer from '../componetsMain/footer'
 const page = () => {
   return (
     <div className="relative min-h-screen">
       <Navbar />
-      <div className="absolute inset-0 bg-[url('/images/help-bg.jpg')] bg-cover bg-center opacity-25" />
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-25" 
+        // style={{ backgroundImage: "url('/images/joshuaworoniecki-ai-generated-7907777_1920.jpg')" }}
+      />
       <div className={`${homeColors.bgGradient} relative z-10 p-10`}> 
         
         <section className="mt-20 text-center">

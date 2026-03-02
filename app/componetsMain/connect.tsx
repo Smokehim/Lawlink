@@ -7,10 +7,10 @@ import { CheckCircle,MessageSquare, Shield } from 'lucide-react';
 const Connect = () => {
     
   return (
-    <section className="py-20 bg-orange-600">
+    <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-white mb-16">
-            Why Choose LegalConnect?
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
+            Why Choose LawLink?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Feature 1 */}
@@ -20,10 +20,10 @@ const Connect = () => {
                   <CheckCircle className="w-8 h-8 text-blue-600" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
                 Verified Lawyers
               </h3>
-              <p className="text-white">
+              <p className="text-gray-900">
                 All lawyers are thoroughly verified and certified by our admin team to ensure quality legal services
               </p>
             </div>

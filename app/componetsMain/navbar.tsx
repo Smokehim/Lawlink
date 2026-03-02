@@ -18,11 +18,11 @@ function Navbar (){
           </div>
           <div className="hidden md:flex ">
             <ul className="flex text-gray-900 gap-7">
-              <li className='hover:text-black'><Link href='/'>Home</Link></li>
-              <li  className='hover:text-black'><Link href='/service'>Service</Link></li>
-              <li className='hover:text-black'><Link href='/about'>About</Link></li>
-              <li className='hover:text-black'><Link href='/contact'>Contact</Link></li>
-              <li className='hover:text-black'><Link href='/help'>Help</Link></li>
+              <li className='hover:bg-blue-700'><Link href='/'>Home</Link></li>
+              <li  className='hover:bg-blue-700'><Link href='/service'>Service</Link></li>
+              <li className='hover:bg-blue-700'><Link href='/about'>About</Link></li>
+              <li className='hover:bg-blue-700'><Link href='/contact'>Contact</Link></li>
+              <li className='hover:bg-blue-700'><Link href='/help'>Help</Link></li>
             </ul>
          </div>
          <div className="flex items-center gap-2 ">

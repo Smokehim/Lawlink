@@ -21,7 +21,7 @@ const PartnerCard = () => {
       {
         Datas.map((items)=>(
              <div key={items.id} className='flex flex-col items-center'>
-                <Image src={items.image} alt={items.name} width={350} height={350} />
+                <Image src={items.image} alt={items.name} width={3500} className="rounded-xl shadow-3xl" height={350} />
                 <div className="flex flex-col items-center mt-2">
                     <h1 className={homeColors.textPrimary}>{items.name}</h1>
                     <p className={`${homeColors.textPrimary} text-sm`}>PARTNER</p>

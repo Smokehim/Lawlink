@@ -2,6 +2,7 @@ import React from 'react'
 import Section from './componets/section'
 import Navbar from '../componetsMain/navbar'
 import { homeColors } from '../interfaces/colors'
+import Footer from '../componetsMain/footer'
 
 const page = () => {
   return (
@@ -23,6 +24,7 @@ const page = () => {
         </div>
       </section>
       <Section/>
+      <Footer/>
     </div>
   )
 }

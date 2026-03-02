@@ -1,4 +1,4 @@
-import MainService from "./componets/MainServicw"
+import MainService from "./componets/MainService"
 import Footer from "../componetsMain/footer"
 import Navbar from "../componetsMain/navbar"
  function Service(){
