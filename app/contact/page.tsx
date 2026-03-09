@@ -17,7 +17,7 @@ const ContactPage = () => {
               Communication
             </span>
             <h1 className="text-4xl md:text-7xl font-extrabold mb-8 tracking-tight leading-tight">
-              Let's Start a <br /><span className="text-blue-400">Conversation</span>
+              Let&apos;s Start a <br /><span className="text-blue-400">Conversation</span>
             </h1>
             <p className="text-blue-100/80 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
               Have questions about LawLink or need specific legal assistance? Our professional team is standing by to help you navigate your legal journey.

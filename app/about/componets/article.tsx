@@ -30,7 +30,7 @@ const Article = () => {
         
         <div className="space-y-6">
           <p className="text-gray-600 text-lg leading-relaxed border-l-4 border-blue-600 pl-6 py-2 italic font-medium">
-            "We believe that high-quality legal support should not be a luxury for the few, but a standard accessibility for all."
+            &quot;We believe that high-quality legal support should not be a luxury for the few, but a standard accessibility for all.&quot;
           </p>
           
           <p className="text-gray-600 text-lg leading-relaxed">
@@ -38,7 +38,7 @@ const Article = () => {
           </p>
           
           <p className="text-gray-600 text-lg leading-relaxed font-medium">
-            LawLink is more than a directory; it's a movement towards a more equitable legal system.
+            LawLink is more than a directory; it&apos;s a movement towards a more equitable legal system.
           </p>
         </div>
       </div>

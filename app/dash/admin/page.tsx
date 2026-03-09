@@ -23,6 +23,25 @@ import Image from 'next/image';
 
 const API_BASE = 'http://localhost:3002';
 
+interface DashboardLawyer {
+  id: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  status: 'verified' | 'pending' | 'rejected' | 'unverified';
+  specialization?: string;
+  province?: string;
+  district?: string;
+  licenseUrl: string;
+}
+
+interface DashboardClient {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
 
 type Section = 'home' | 'lawyers' | 'clients' | 'locations' | 'support' | 'profile';
 
@@ -38,8 +57,8 @@ const mockLocations = [
 export default function AdminDashboard() {
   const [currentSection, setCurrentSection] = useState<Section>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [lawyers, setLawyers] = useState<unknown[]>([]);
-  const [clients, setClients] = useState<unknown[]>([]);
+  const [lawyers, setLawyers] = useState<DashboardLawyer[]>([]);
+  const [clients, setClients] = useState<DashboardClient[]>([]);
   const { user, logout, isLoading, token } = useAuth();
   const router = useRouter();
 
@@ -55,12 +74,12 @@ export default function AdminDashboard() {
         if (!response.ok) throw new Error('Failed to fetch lawyers');
         
         const data = await response.json();
-        const mappedLawyers = data.map((l: { lawyer_id: number; full_name?: string; email?: string; phone_number?: string; verification_status?: string; specialization?: string; province?: string; district?: string }) => ({
+        const mappedLawyers = data.map((l: { lawyer_id: number; full_name?: string; email?: string; phone_number?: string; verification_status?: DashboardLawyer['status']; specialization?: string; province?: string; district?: string }): DashboardLawyer => ({
           id: l.lawyer_id.toString(),
           name: l.full_name,
           email: l.email,
           phone: l.phone_number,
-          status: l.verification_status,
+          status: l.verification_status || 'unverified',
           specialization: l.specialization,
           province: l.province,
           district: l.district,
@@ -111,7 +130,7 @@ export default function AdminDashboard() {
   const renderContent = () => {
     switch (currentSection) {
       case 'home':
-        return <Homes lawyers={lawyers as any} clients={clients as any} />;
+        return <Homes lawyers={lawyers} clients={clients} />;
 
       case 'lawyers':
         return <Lawyers />;
@@ -191,9 +210,9 @@ export default function AdminDashboard() {
           >
             <Scale className="w-5 h-5" />
             <span>Manage Lawyers</span>
-            {(lawyers as any).filter((l: any) => l.status === 'pending').length > 0 && (
+            {lawyers.filter((l) => l.status === 'pending').length > 0 && (
               <span className="ml-auto bg-yellow-600 text-white text-xs rounded-full px-2 py-1">
-                {(lawyers as any).filter((l: any) => l.status === 'pending').length}
+                {lawyers.filter((l) => l.status === 'pending').length}
               </span>
             )}
           </button>

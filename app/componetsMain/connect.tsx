@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { CheckCircle, MessageSquare, Shield, Scale, Zap } from 'lucide-react';
+import { Shield, Scale, Zap } from 'lucide-react';
 
 const Connect = () => {
   const features = [
@@ -47,7 +47,7 @@ const Connect = () => {
             Why thousands trust <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">LawLink</span>
           </h2>
           <p className="text-lg text-gray-600 leading-relaxed md:px-8">
-            We're revolutionizing how people access legal help. Get fast, secure, and reliable connections to the best legal minds right away.
+            We&apos;re revolutionizing how people access legal help. Get fast, secure, and reliable connections to the best legal minds right away.
           </p>
         </div>
 

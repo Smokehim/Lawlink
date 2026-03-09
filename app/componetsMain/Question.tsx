@@ -19,7 +19,7 @@ const Question = () => {
             Your legal questions, <span className="text-blue-600">answered</span>
           </h2>
           <p className="text-center text-gray-600 max-w-2xl text-lg leading-relaxed">
-            Get clear, direct answers to common questions. Understand attorney vs lawyer, find the right professional, and prepare for your case.
+            Whether you&apos;re a legal professional or seeking legal assistance, find answers to common questions about our platform.
           </p>
         </div>
         

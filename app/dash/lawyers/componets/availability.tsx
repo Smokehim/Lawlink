@@ -5,11 +5,18 @@ import { useAuth } from '@/app/context/AuthContext';
 
 const API_BASE = 'http://localhost:3002';
 
+interface WorkingHour {
+  day_of_week: string;
+  is_closed: boolean;
+  start_time: string;
+  end_time: string;
+}
+
 export default function Availability() {
   const { user, token } = useAuth();
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
   const [newUnavailableDate, setNewUnavailableDate] = useState('');
-  const [workingHours, setWorkingHours] = useState<unknown[]>([]);
+  const [workingHours, setWorkingHours] = useState<WorkingHour[]>([]);
 
   const fetchAvailability = async () => {
     if (!user?.userId || !token) return;
@@ -19,7 +26,7 @@ export default function Availability() {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       if (!res.ok) throw new Error('Failed to fetch availability');
-      const data = await res.json() as { unavailable_dates: string[]; working_hours?: unknown[] };
+      const data = await res.json() as { unavailable_dates: string[]; working_hours?: WorkingHour[] };
       // Backend returns ISO strings, we just need the date part correctly
       const dates = data.unavailable_dates.map((d: string) => d.split('T')[0]);
       setUnavailableDates(dates);
@@ -60,7 +67,8 @@ export default function Availability() {
       setNewUnavailableDate('');
     } catch (error: unknown) {
       console.error("Error adding unavailable date:", error);
-      alert((error as any).message || "Failed to add unavailable date. Please try again.");
+      const message = error instanceof Error ? error.message : "Failed to add unavailable date. Please try again.";
+      alert(message);
     }
   };
 
@@ -81,7 +89,8 @@ export default function Availability() {
       setUnavailableDates(unavailableDates.filter(d => d !== date));
     } catch (error: unknown) {
       console.error("Error removing unavailable date:", error);
-      alert((error as any).message || "Failed to remove date. Please try again.");
+      const message = error instanceof Error ? error.message : "Failed to remove date. Please try again.";
+      alert(message);
     }
   };
 
@@ -104,7 +113,8 @@ export default function Availability() {
       setUnavailableDates([]);
     } catch (error: unknown) {
       console.error("Error clearing unavailable dates:", error);
-      alert((error as any).message || "Failed to clear dates. Please try again.");
+      const message = error instanceof Error ? error.message : "Failed to clear dates. Please try again.";
+      alert(message);
     }
   };
 
@@ -176,8 +186,8 @@ export default function Availability() {
       <div className="bg-white rounded-lg shadow-md p-6 mt-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-4">Working Hours</h3>
         <div className="space-y-4">
-          {(workingHours as any).length > 0 ? (
-            (workingHours as any).map((wh: any) => (
+          {workingHours.length > 0 ? (
+            workingHours.map((wh) => (
               <div key={wh.day_of_week} className="flex items-center justify-between border-b pb-2 last:border-0">
                 <span className="text-gray-700 font-medium w-32">{wh.day_of_week}</span>
                 {wh.is_closed ? (

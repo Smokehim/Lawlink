@@ -11,7 +11,7 @@ const Main = () => {
           Empowering Justice through <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Innovation</span>
         </h1>
         <p className="text-gray-600 text-lg md:text-xl leading-relaxed">
-          LawLink was founded on a simple belief: finding legal help shouldn't be a struggle. We're building the bridge between top legal expertise and those who need it most.
+          LawLink was founded on a simple belief: finding legal help shouldn&apos;t be a struggle. We&apos;re building the bridge between top legal expertise and those who need it most.
         </p>
       </div>
     </div>

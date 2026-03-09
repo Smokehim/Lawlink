@@ -40,8 +40,7 @@ export default function Lawyers() {
           throw new Error('Failed to fetch lawyers');
         }
         const data = await response.json();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mappedLawyers = data.map((l: any) => ({
+        const mappedLawyers = data.map((l: { lawyer_id: number; full_name?: string; email?: string; phone_number?: string; verification_status?: Lawyer['status']; specialization?: string; province?: string; district?: string }) => ({
           id: l.lawyer_id.toString(),
           name: l.full_name || '',
           email: l.email || '',

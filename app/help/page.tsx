@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import Navbar from "../componetsMain/navbar"
 import Footer from '../componetsMain/footer'
-import { Mail, Phone, ArrowRight, ShieldCheck, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import { Mail, Phone, ShieldCheck, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react'
 
 const HelpPage = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -41,7 +41,7 @@ const HelpPage = () => {
             How can we <span className="text-blue-400">help you today?</span>
           </h1>
           <p className="text-blue-100/80 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
-            Whether you're a lawyer or a client, we're here to ensure your LawLink experience is smooth and successful.
+            Whether you&apos;re a lawyer or a client, we&apos;re here to ensure your LawLink experience is smooth and successful.
           </p>
         </div>
       </section>
