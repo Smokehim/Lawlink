@@ -2,7 +2,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Scale, FileText, Landmark, Users, Home, BookOpen, ArrowRight } from 'lucide-react'
+import { Scale, FileText, Landmark, Users, Home, ArrowRight } from 'lucide-react'
 
 const MainService = () => {
   const router = useRouter()

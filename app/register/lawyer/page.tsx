@@ -1,7 +1,8 @@
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {  ArrowLeft, UserPlus } from 'lucide-react';
+import { ArrowLeft, UserPlus } from 'lucide-react';
+import Image from 'next/image';
 
 
 
@@ -184,7 +185,14 @@ export default function LawyerRegistration() {
             </div>
             <div className="flex flex-col items-center mb-6">
                 {profilePreview ? (
-                    <img src={profilePreview} alt="preview" className="w-24 h-24 rounded-full object-cover border-4 border-blue-50 shadow-md mb-2" />
+                    <Image 
+                        src={profilePreview} 
+                        alt="preview" 
+                        width={96} 
+                        height={96} 
+                        className="rounded-full object-cover border-4 border-blue-50 shadow-md mb-2" 
+                        unoptimized
+                    />
                 ) : (
                     <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-2">
                         <UserPlus className="w-10 h-10 text-blue-600" />

@@ -4,7 +4,6 @@ import { FaBars, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 import { Shield } from 'lucide-react'
 import { useAuth } from '@/app/context/AuthContext'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
 const API_BASE = 'http://localhost:3002';
@@ -20,8 +19,8 @@ function Navbar() {
       {/* Top info bar */}
       <div className="hidden lg:flex items-center text-white bg-black justify-between navy px-4 py-2 text-sm">
         <div className="flex items-center gap-6">
-          <span>Call: +260-800-123-456</span>
-          <span>Email: support@lawlink.example</span>
+          <span>Call: +260-969-591-009</span>
+          <span>Email: lawlink200@gmail.com</span>
           <span>Address: 40 Park Ave, Lusaka</ span>
         </div>
         <div className="flex items-center gap-3">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
 
 
 export default function ClientRegister() {
@@ -76,7 +77,14 @@ export default function ClientRegister() {
             <div className="flex justify-center mb-4">
               {preview ? (
                 <div className="relative w-20 h-20">
-                   <img src={preview} alt="preview" className="w-20 h-20 rounded-full object-cover border-4 border-blue-100 shadow-md" />
+                   <Image 
+                     src={preview} 
+                     alt="preview" 
+                     width={80} 
+                     height={80} 
+                     className="rounded-full object-cover border-4 border-blue-100 shadow-md" 
+                     unoptimized
+                   />
                    <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white p-1 rounded-full border-2 border-white">
                       <Shield className="w-3 h-3" />
                    </div>
