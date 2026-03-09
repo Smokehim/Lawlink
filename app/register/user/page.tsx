@@ -4,14 +4,24 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, ArrowLeft } from 'lucide-react';
 
+
 export default function ClientRegister() {
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '', gender: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    if (e.target.name === 'profilePicture' && e.target instanceof HTMLInputElement && e.target.files) {
+      const file = e.target.files[0];
+      setProfilePic(file);
+      setPreview(URL.createObjectURL(file));
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,28 +30,27 @@ export default function ClientRegister() {
     setLoading(true);
 
     try {
+      const formData = new FormData();
+      formData.append('full_name', form.fullName);
+      formData.append('email', form.email);
+      formData.append('phone_number', form.phone);
+      formData.append('password', form.password);
+      formData.append('gender', form.gender);
+      if (profilePic) {
+        formData.append('profile_picture', profilePic);
+      }
+
       const res = await fetch('http://localhost:3002/registration_User', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          full_name: form.fullName,
-          email: form.email,
-          phone_number: form.phone,
-          password: form.password,
-          gender: form.gender,
-        }),
+        body: formData,
       });
-
       const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem('user_email', data.email);
-        localStorage.setItem('user_id', data.user_id);
-        router.push('/serial');
-      } else {
-        setError(data.message || 'Registration failed');
-      }
+      if (!res.ok) throw new Error(data.message || 'Registration failed');
+      localStorage.setItem('user_email', data.email);
+      localStorage.setItem('user_id', data.user_id);
+      router.push('/serial');
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError(err instanceof Error ? err.message : 'An error occurred. Please try again.');
       console.log(err)
     } finally {
       setLoading(false);
@@ -65,9 +74,18 @@ export default function ClientRegister() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <Shield className="w-8 h-8 text-blue-600" />
-              </div>
+              {preview ? (
+                <div className="relative w-20 h-20">
+                   <img src={preview} alt="preview" className="w-20 h-20 rounded-full object-cover border-4 border-blue-100 shadow-md" />
+                   <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white p-1 rounded-full border-2 border-white">
+                      <Shield className="w-3 h-3" />
+                   </div>
+                </div>
+              ) : (
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-blue-600" />
+                </div>
+              )}
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Client Registration</h2>
             <p className="text-gray-600">Create your account to find lawyers</p>
@@ -75,6 +93,20 @@ export default function ClientRegister() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label htmlFor="profilePicture" className="block text-sm font-medium text-gray-700 mb-2">
+                Profile Picture
+              </label>
+              <input
+                type="file"
+                id="profilePicture"
+                name="profilePicture"
+                accept="image/*"
+                onChange={handleChange}
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition"
+              />
+            </div>
+
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name
@@ -177,7 +209,7 @@ export default function ClientRegister() {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{' '}
-              <a href="/logins/userlogin" className="text-blue-600 hover:text-blue-700 font-semibold">
+              <a href="/logins/user" className="text-blue-600 hover:text-blue-700 font-semibold">
                 Login
               </a>
             </p>

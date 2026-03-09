@@ -1,43 +1,79 @@
 import React from 'react'
-import {  FaMailBulk, FaPhone} from 'react-icons/fa'; 
-import { FaLocationDot, FaWhatsapp } from 'react-icons/fa6';
-import { homeColors } from '../../interfaces/colors'
+import { Phone, Mail, MessageSquare, MapPin, ArrowRight } from 'lucide-react'
 
-interface Contact {
+interface ContactItem {
   id: number;
   icon: React.ReactNode;
-  details: string;
-  name: string;
+  label: string;
+  detail: string;
+  link: string;
 }
 
-const contact : Contact[] =  [
-    {id:1, icon:<FaPhone className='text-4xl'/>,details:"Phone Number", name: '123-456-7890', },
-    {id:2, icon:<FaMailBulk className='text-4xl'/>,details:"Email", name: 'Mwambajason2@gmail', },
-    {id:3, icon:<FaWhatsapp className='text-4xl'/>,details:"Whatsapp", name: '123-456-7890', },
-    {id:4, icon:<FaLocationDot className='text-4xl'/>,details:"Our Office", name: 'Lusaka, zambia', },
+const contactItems: ContactItem[] = [
+  { 
+    id: 1, 
+    icon: <Phone className="w-8 h-8 text-blue-600" />, 
+    label: "Phone Support", 
+    detail: "0969591009",
+    link: "tel:0969591009"
+  },
+  { 
+    id: 2, 
+    icon: <Mail className="w-8 h-8 text-blue-600" />, 
+    label: "Email Address", 
+    detail: "lawlink200@gmail.com",
+    link: "mailto:lawlink200@gmail.com"
+  },
+  { 
+    id: 3, 
+    icon: <MessageSquare className="w-8 h-8 text-blue-600" />, 
+    label: "WhatsApp Business", 
+    detail: "0969591009",
+    link: "https://wa.me/0969591009"
+  },
+  { 
+    id: 4, 
+    icon: <MapPin className="w-8 h-8 text-blue-600" />, 
+    label: "Regional Office", 
+    detail: "Lusaka, Zambia",
+    link: "#"
+  },
 ]
+
 const Section = () => {
   return (
-    <div className='pt-20 pb-20 flex min-h-screen justify-center items-center bg-white'>
-      <div className='w-full max-w-5xl px-4'>
-        <div className='flex flex-col items-center gap-10'>
-            <div className='text-center'>
-              <h2 className={`${homeColors.textPrimary} text-4xl font-bold mb-4`}>Contact Information</h2>
-              <p className='text-gray-600 max-w-2xl'>Each of these channels is monitored by our team. Choose the method that works best for you.</p>
-            </div>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full'>
-                {
-                    contact.map((item) => (
-                        <div key={item.id} className='flex flex-col items-center gap-3 border-2 border-blue-200 p-8 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 hover:shadow-lg transition-shadow'>
-                            <div className='text-blue-600'>{item.icon}</div>
-                            <div className='flex text-center flex-col'>
-                                <h2 className={`${homeColors.textPrimary} font-semibold text-lg`}>{item.details}</h2>
-                                <p className='text-gray-700 mt-1'>{item.name}</p>
-                            </div>
-                        </div>
-                    ))
-                }
-            </div>
+    <div className="py-24 bg-slate-50">
+      <div className="container mx-auto px-4 md:px-8">
+        <div className="flex flex-col items-center gap-16">
+          <div className="text-center max-w-2xl">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">Contact Information</h2>
+            <p className="text-gray-600 text-lg leading-relaxed">
+              Every inquiry is handled with the highest level of professionalism and confidentiality. Choose your preferred channel below.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
+            {contactItems.map((item) => (
+              <a 
+                key={item.id} 
+                href={item.link}
+                className="group bg-white rounded-3xl p-10 shadow-xl border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 flex flex-col items-center text-center"
+              >
+                <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mb-8 group-hover:bg-blue-600 group-hover:rotate-6 transition-all duration-300">
+                  <div className="group-hover:text-white transition-colors">
+                    {item.icon}
+                  </div>
+                </div>
+                
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.label}</h3>
+                <p className="text-blue-600 font-semibold mb-6">{item.detail}</p>
+                
+                <div className="mt-auto flex items-center gap-2 text-gray-400 group-hover:text-blue-600 transition-colors font-bold text-sm">
+                  CONNECT <ArrowRight className="w-4 h-4" />
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </div>

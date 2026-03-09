@@ -5,6 +5,7 @@ import {  ArrowLeft, UserPlus } from 'lucide-react';
 
 
 
+
 export default function LawyerRegistration() {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -17,10 +18,14 @@ export default function LawyerRegistration() {
     password: '',
     confirmPassword: '',
   });
-  const [licenseFile, setLicenseFile] = useState<File | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [licenseFile, setLicenseFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,46 +37,47 @@ export default function LawyerRegistration() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3002/registration_Lawyer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          full_name: formData.fullName,
-          email: formData.email,
-          phone_number: formData.phone,
-          province: formData.province,
-          district: formData.district,
-          specialization: formData.specialization,
-          bar_number: formData.barNumber,
-          password: formData.password,
-        }),
-      });
+      const fd = new FormData();
+      fd.append('full_name', formData.fullName);
+      fd.append('email', formData.email);
+      fd.append('phone_number', formData.phone);
+      fd.append('province', formData.province);
+      fd.append('district', formData.district);
+      fd.append('specialization', formData.specialization);
+      fd.append('bar_number', formData.barNumber);
+      fd.append('password', formData.password);
+      
+      if (profilePic) fd.append('profile_picture', profilePic);
+      if (licenseFile) fd.append('license_file', licenseFile);
 
-      if (response.ok) {
-        const data = await response.json();
-        // Save email to localStorage for verification step
-        localStorage.setItem('lawyer_email', data.email);
-        router.push('/serial');
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Registration failed. Please try again.');
-      }
+      const res = await fetch('http://localhost:3002/registration_Lawyer', {
+        method: 'POST',
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Registration failed');
+      localStorage.setItem('lawyer_email', data.email);
+      router.push('/serial');
       
     } catch (error) {
       console.error(error);
-      setError('An error occurred. Please try again.');
+      setError(error instanceof Error ? error.message : 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    if (e.target.name === 'profilePicture' && e.target.files) {
+        const file = e.target.files[0];
+        setProfilePic(file);
+        setProfilePreview(URL.createObjectURL(file));
+    } else {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    }
   };
 
   return (
@@ -176,6 +182,42 @@ export default function LawyerRegistration() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               />
             </div>
+            <div className="flex flex-col items-center mb-6">
+                {profilePreview ? (
+                    <img src={profilePreview} alt="preview" className="w-24 h-24 rounded-full object-cover border-4 border-blue-50 shadow-md mb-2" />
+                ) : (
+                    <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                        <UserPlus className="w-10 h-10 text-blue-600" />
+                    </div>
+                )}
+                <label className="text-sm font-medium text-blue-600 hover:text-blue-700 cursor-pointer">
+                    Choose Profile Picture
+                    <input
+                        type="file"
+                        name="profilePicture"
+                        accept="image/*"
+                        onChange={handleChange}
+                        className="hidden"
+                    />
+                </label>
+            </div>
+
+            <div>
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                placeholder="Enter full name"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+              />
+            </div>
+            ...
             <div>
               <label htmlFor="license" className="block text-sm font-medium text-gray-700 mb-2">
                 Upload License
@@ -184,9 +226,10 @@ export default function LawyerRegistration() {
                 type="file"
                 id="license"
                 name="license"
+                accept=".pdf,image/*"
                 onChange={(e) => setLicenseFile(e.target.files ? e.target.files[0] : null)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
             </div>
             <div>

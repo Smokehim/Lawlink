@@ -4,39 +4,26 @@ import { useRouter } from 'next/navigation';
 import Homes from './componets/home';
 import Message from './componets/message';
 import Profile from './componets/profile';
+import Image from 'next/image';
 import Searchs from './componets/search';
+import SupportForm from './componets/support';
 import { useAuth } from '@/app/context/AuthContext';
-import { 
-  Home, 
-  Search, 
-  MessageSquare, 
-  UserCircle, 
-  LogOut, 
-  Menu, 
-  X
-  
+import {
+  Home,
+  Search,
+  MessageSquare,
+  UserCircle,
+  LogOut,
+  Menu,
+  X,
+  LifeBuoy
 } from 'lucide-react';
 
-type Section = 'home' | 'search' | 'messages' | 'profile';
+const API_BASE = 'http://localhost:3002';
 
-// Mock data for lawyers
+type Section = 'home' | 'search' | 'messages' | 'profile' | 'support';
 
-const mockMessages = [
-  {
-    id: '1',
-    lawyerName: 'Sarah Banda',
-    content: 'Thank you for reaching out. I have reviewed your case and I am available to discuss it further.',
-    date: '2026-01-28',
-    lawyerId: '1',
-  },
-  {
-    id: '2',
-    lawyerName: 'James Phiri',
-    content: 'I would be happy to help you with your family law matter. Please schedule a consultation.',
-    date: '2026-01-27',
-    lawyerId: '2',
-  },
-];
+
 
 export default function ClientDashboard() {
   const [currentSection, setCurrentSection] = useState<Section>('home');
@@ -63,10 +50,12 @@ export default function ClientDashboard() {
       case 'search':
         return <Searchs onNavigate={(section) => setCurrentSection(section)} />;
       case 'messages':
-        return <Message onNavigate={(section) => setCurrentSection(section)} />;
+        return <Message />;
 
       case 'profile':
-        return <Profile onNavigate={(section) => setCurrentSection(section)} />;
+        return <Profile />;
+      case 'support':
+        return <SupportForm />;
       default:
         return null;
     }
@@ -131,11 +120,7 @@ export default function ClientDashboard() {
           >
             <MessageSquare className="w-5 h-5" />
             <span>Messages</span>
-            {mockMessages.length > 0 && (
-              <span className="ml-auto bg-blue-600 text-white text-xs rounded-full px-2 py-1">
-                {mockMessages.length}
-              </span>
-            )}
+
           </button>
           
           <button
@@ -152,14 +137,26 @@ export default function ClientDashboard() {
             <UserCircle className="w-5 h-5" />
             <span>Profile</span>
           </button>
+
+          <button
+            onClick={() => {
+              setCurrentSection('support');
+              setSidebarOpen(false);
+            }}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              currentSection === 'support'
+                ? 'bg-blue-50 text-blue-600'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <LifeBuoy className="w-5 h-5" />
+            <span>Support</span>
+          </button>
         </nav>
 
         <div className="absolute bottom-0 w-full p-4 border-t">
           <button
-            onClick={() => {
-              logout();
-              router.push('/logins/user');
-            }}
+            onClick={logout}
             className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
@@ -182,8 +179,18 @@ export default function ClientDashboard() {
             </button>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">{user?.fullName || 'User'}</span>
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-semibold">{user?.fullName?.charAt(0).toUpperCase() || 'U'}</span>
+              <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-blue-600 relative">
+                {user?.profile_picture ? (
+                  <Image 
+                    src={`${API_BASE}${user.profile_picture}`} 
+                    alt="Profile" 
+                    fill 
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <span className="text-white font-semibold">{user?.fullName?.charAt(0).toUpperCase() || 'U'}</span>
+                )}
               </div>
             </div>
           </div>

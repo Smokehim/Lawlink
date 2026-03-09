@@ -1,9 +1,18 @@
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Scale, ArrowLeft } from 'lucide-react';
+import { Scale } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 
+
+type AuthUser = {
+  userId: number;
+  email: string;
+  fullName: string;
+  serialCode: string;
+  serialCodeExpiresAt: string;
+};
+type LoginResponse = { token: string; user: AuthUser };
 export default function LawyerLogin() {
   const [formData, setFormData] = useState({
     email: '',
@@ -20,28 +29,18 @@ export default function LawyerLogin() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3002/login_lawyer', {
+      const res = await fetch('http://localhost:3002/login_lawyer', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.message || 'Login failed. Please check your credentials.');
-        return;
-      }
-
-      const data = await response.json();
-      // Save token and user data to context and localStorage
+      const data: LoginResponse = await res.json();
+      if (!res.ok) throw new Error((data as { message?: string }).message || 'Login failed');
       login(data.token, data.user);
-      router.push('/dash/lawyers');
-
+      router.push("/dash/lawyers"); // AuthContext/Dashboard useEffect will handle redirect
     } catch (err) {
       console.error(err);
-      setError('An error occurred. Please try again.');
+      setError(err instanceof Error ? err.message : 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -56,19 +55,8 @@ export default function LawyerLogin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        {/* Back Button */}
-        <button
-          onClick={() => router.back()}
-          className="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </button>
-
-        {/* Card */}
+      <div className="container max-w-md w-full" data-sr>
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
@@ -78,8 +66,6 @@ export default function LawyerLogin() {
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Lawyer Login</h2>
             <p className="text-gray-600">Access your professional dashboard</p>
           </div>
-
-          {/* Form */}
           <form onSubmit={handleSubmit}  className="space-y-5">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -96,7 +82,6 @@ export default function LawyerLogin() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
               />
             </div>
-
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
@@ -112,7 +97,6 @@ export default function LawyerLogin() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
               />
             </div>
-
             <button
               type="submit"
               disabled={loading}
@@ -120,20 +104,18 @@ export default function LawyerLogin() {
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
-
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
           </form>
-
-          {/* Footer */}
-          <div className="mt-6 text-center">
+          <div id="divider" className="my-6" />
+          <div className="mt-2 text-center">
             <p className="text-gray-600">
               Don&apos;t have an account?{' '}
               <a
-                href="/register/lawyerRegistration"
+                href="/register/lawyer"
                 className="text-purple-600 hover:text-purple-700 font-semibold"
               >
                 Register

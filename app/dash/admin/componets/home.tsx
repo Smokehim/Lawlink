@@ -2,7 +2,7 @@
 
 interface Lawyer {
   id: string;
-  status: 'verified' | 'pending' | 'rejected';
+  status: 'verified' | 'pending' | 'rejected' | 'unverified';
 }
 
 interface Client {
@@ -19,7 +19,7 @@ export default function Homes({ lawyers, clients }: HomeProps) {
     <div>
       <h2 className="text-3xl font-bold text-gray-900 mb-6">Admin Dashboard</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-600">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Lawyers</h3>
           <p className="text-3xl font-bold text-blue-600">{lawyers.length}</p>
@@ -34,6 +34,12 @@ export default function Homes({ lawyers, clients }: HomeProps) {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Pending Verification</h3>
           <p className="text-3xl font-bold text-yellow-600">
             {lawyers.filter((l) => l.status === 'pending').length}
+          </p>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-gray-600">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Unverified Email</h3>
+          <p className="text-3xl font-bold text-gray-600">
+            {lawyers.filter((l) => l.status === 'unverified').length}
           </p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-600">

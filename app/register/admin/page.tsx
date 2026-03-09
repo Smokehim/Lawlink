@@ -25,7 +25,7 @@ export default function AdminRegistration() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/registration_Admin', {
+      const response = await fetch('http://localhost:3002/registration_Admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

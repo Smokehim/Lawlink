@@ -1,0 +1,11 @@
+CREATE TABLE `conversations` (
+  `conversation_id` int NOT NULL AUTO_INCREMENT,
+  `participant_id` int NOT NULL,
+  `participant_role` enum('client','admin') NOT NULL,
+  `lawyer_id` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`conversation_id`),
+  UNIQUE KEY `unique_conversation` (`participant_id`,`participant_role`,`lawyer_id`),
+  KEY `idx_lawyer` (`lawyer_id`),
+  KEY `idx_participant` (`participant_id`,`participant_role`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

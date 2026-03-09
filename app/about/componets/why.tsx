@@ -1,26 +1,64 @@
 import React from 'react'
-import CardFt from './cardft'
-import { homeColors } from '../../interfaces/colors'
+import { CheckCircle2, ShieldCheck, Users } from 'lucide-react'
+
+interface CardProps {
+  title: string;
+  numbers: string;
+  description: string;
+  icon: React.ReactNode;
+}
+
+const CardFt = ({ title, numbers, description, icon }: CardProps) => {
+  return (
+    <div className="group bg-white rounded-3xl p-10 border border-gray-100 shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
+      <div className="absolute top-0 right-0 p-6 text-4xl font-black text-blue-50 group-hover:text-blue-100/50 transition-colors">
+        {numbers}
+      </div>
+      <div className="relative z-10">
+        <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-8 group-hover:rotate-6 transition-transform">
+          {icon}
+        </div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-4">{title}</h3>
+        <p className="text-gray-600 leading-relaxed">{description}</p>
+      </div>
+    </div>
+  )
+}
 
 const Why = () => {
   return (
-    <div className='flex flex-col bg-white p-5'>
-      <div className="flex items-center gap-2">
-        <p className={`${homeColors.textPrimary}`}>Why us</p>
-        <hr className='w-20 border-gray-300' />
+    <div className="flex flex-col gap-16">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="max-w-2xl">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-1 bg-blue-600 rounded-full"></div>
+            <p className="font-bold text-blue-600 uppercase tracking-widest text-sm">Why choose us</p>
+          </div>
+          <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
+            Redefining the Legal <span className="text-blue-600">Experience</span>
+          </h2>
+        </div>
       </div>
-      <p className={`${homeColors.textPrimary} text-2xl font-bold`}>Why Choose Our Law Platform</p>
-      <div className="grid grid-cols-1 gap-9 md:grid-cols-2 lg:grid-cols-3 p-8">
-        <CardFt numbers={'01'} description='the best expertise which you would like' title='Experience & Expertise'/>
-        <CardFt numbers={'02'} description='We prioritize client privacy and maintain strict confidentiality in
-         every case. Your personal and legal 
-         information is protected with the highest
-          professional and ethical standards.' title='Trust & Confidentiality'/>
-        <CardFt numbers={'03'} description='Our platform is
-         designed to connect clients with the
-          right legal professionals quickly and efficiently. We focus on understanding 
-        your needs to provide 
-        tailored legal support' title='Client-Centered Approach'/>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <CardFt 
+          numbers="01" 
+          icon={<CheckCircle2 className="w-7 h-7 text-blue-600" />}
+          title="Expertise & Knowledge" 
+          description="Our platform connects you with the highest caliber of legal professionals specializing in corporate, family, and criminal law."
+        />
+        <CardFt 
+          numbers="02" 
+          icon={<ShieldCheck className="w-7 h-7 text-blue-600" />}
+          title="Unwavering Trust" 
+          description="We maintain strict verification standards and end-to-end encryption to ensure your legal journey is secure and entirely private."
+        />
+        <CardFt 
+          numbers="03" 
+          icon={<Users className="w-7 h-7 text-blue-600" />}
+          title="Client-First Logic" 
+          description="Every tool on LawLink is built with one goal: making legal services transparent, accessible, and fast for everyone."
+        />
       </div>
     </div>
   )

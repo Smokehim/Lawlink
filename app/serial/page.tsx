@@ -4,6 +4,15 @@ import { useRouter } from 'next/navigation';
 import { Key, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 
+
+type AuthUser = {
+  userId: number;
+  email: string;
+  fullName: string;
+  serialCode: string;
+  serialCodeExpiresAt: string;
+};
+type VerifyResponse = { token: string; user: AuthUser };
 type UserType = 'user' | 'lawyer' | 'admin' | null;
 
 export default function VerifyCodePage() {
@@ -35,19 +44,14 @@ export default function VerifyCodePage() {
     try {
       const endpoint = userType === 'user' ? '/verify_user' : userType === 'lawyer' ? '/verify_lawyer' : '/verify_admin';
       const redirectPath = userType === 'user' ? '/dash/user' : userType === 'lawyer' ? '/dash/lawyers' : '/dash/admin';
-
       const res = await fetch(`http://localhost:3002${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, verificationCode: code }),
       });
-
-      if (!res.ok) throw new Error('Invalid verification code');
-
-      const data = await res.json();
-      // Save token and user data from verification response
+      const data: VerifyResponse = await res.json();
+      if (!res.ok) throw new Error((data as { message?: string }).message || 'Verification failed');
       login(data.token, data.user);
-
       localStorage.removeItem('user_email');
       localStorage.removeItem('lawyer_email');
       localStorage.removeItem('admin_email');

@@ -10,94 +10,21 @@ import {
   LogOut, 
   Menu, 
   X,
-  
+  ShieldAlert,
+  Settings
 } from 'lucide-react';
 import Clients from './componets/clients';
 import Homes from './componets/home';
 import Lawyers from './componets/lawyers';
 import Locations from './componets/locations';
+import Support from './componets/support';
+import Profile from './componets/profile';
+import Image from 'next/image';
 
-interface User {
-  fullName: string;
-  email: string;
-  phone: string;
-  specialization: string;
-  province: string;
-  district: string;
-  status: 'verified' | 'pending' | 'rejected';
-}
+const API_BASE = 'http://localhost:3002';
 
-type Section = 'home' | 'lawyers' | 'clients' | 'locations';
 
-// Mock data for lawyers
-const mockLawyers = [
-  {
-    id: '1',
-    name: 'Sarah Banda',
-    email: 'sarah.banda@legal.zm',
-    phone: '+260 966 789 012',
-    status: 'verified' as const,
-    specialization: 'Corporate Law',
-    province: 'Lusaka',
-    district: 'Lusaka',
-    licenseUrl: 'https://placehold.co/600x400/EEE/31343C?text=License+Sarah',
-  },
-  {
-    id: '2',
-    name: 'James Phiri',
-    email: 'james.phiri@legal.zm',
-    phone: '+260 977 456 789',
-    status: 'pending' as const,
-    specialization: 'Family Law',
-    province: 'Lusaka',
-    district: 'Chilanga',
-    licenseUrl: 'https://placehold.co/600x400/EEE/31343C?text=License+James',
-  },
-  {
-    id: '3',
-    name: 'Grace Mwape',
-    email: 'grace.mwape@legal.zm',
-    phone: '+260 955 123 456',
-    status: 'pending' as const,
-    specialization: 'Criminal Law',
-    province: 'Copperbelt',
-    district: 'Ndola',
-    licenseUrl: 'https://placehold.co/600x400/EEE/31343C?text=License+Grace',
-  },
-  {
-    id: '4',
-    name: 'Peter Sichone',
-    email: 'peter.sichone@legal.zm',
-    phone: '+260 966 234 567',
-    status: 'rejected' as const,
-    specialization: 'Property Law',
-    province: 'Southern',
-    district: 'Livingstone',
-    licenseUrl: 'https://placehold.co/600x400/EEE/31343C?text=License+Peter',
-  },
-];
-
-// Mock data for clients
-const mockClients = [
-  {
-    id: '1',
-    name: 'John Mwansa',
-    email: 'john.mwansa@email.com',
-    phone: '+260 977 123 456',
-  },
-  {
-    id: '2',
-    name: 'Mary Lungu',
-    email: 'mary.lungu@email.com',
-    phone: '+260 966 654 321',
-  },
-  {
-    id: '3',
-    name: 'David Tembo',
-    email: 'david.tembo@email.com',
-    phone: '+260 955 987 654',
-  },
-];
+type Section = 'home' | 'lawyers' | 'clients' | 'locations' | 'support' | 'profile';
 
 // Mock locations data
 const mockLocations = [
@@ -108,74 +35,96 @@ const mockLocations = [
   { id: '5', province: 'Western', districts: ['Mongu', 'Kaoma', 'Senanga'] },
 ];
 
-// Mock user for the dashboard
-const mockUser: User = {
-  fullName: 'Admin User',
-  email: 'admin@lawlink.com',
-  phone: '123-456-7890',
-  specialization: 'System Administration',
-  province: 'Lusaka',
-  district: 'Lusaka',
-  status: 'verified',
-};
-
-const mockOnLogout = () => {
-  alert('Logged out!');
-};
-
 export default function AdminDashboard() {
   const [currentSection, setCurrentSection] = useState<Section>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [lawyers, setLawyers] = useState(mockLawyers);
-  const [clients, setClients] = useState(mockClients);
-  const { user, logout, isLoading } = useAuth();
+  const [lawyers, setLawyers] = useState<unknown[]>([]);
+  const [clients, setClients] = useState<unknown[]>([]);
+  const { user, logout, isLoading, token } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    const fetchLawyers = async () => {
+      try {
+        const response = await fetch('http://localhost:3002/getlawyers', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!response.ok) throw new Error('Failed to fetch lawyers');
+        
+        const data = await response.json();
+        const mappedLawyers = data.map((l: { lawyer_id: number; full_name?: string; email?: string; phone_number?: string; verification_status?: string; specialization?: string; province?: string; district?: string }) => ({
+          id: l.lawyer_id.toString(),
+          name: l.full_name,
+          email: l.email,
+          phone: l.phone_number,
+          status: l.verification_status,
+          specialization: l.specialization,
+          province: l.province,
+          district: l.district,
+          licenseUrl: 'https://placehold.co/600x400/EEE/31343C?text=License' // Placeholder
+        }));
+        setLawyers(mappedLawyers);
+      } catch (error) {
+        console.error("Failed to fetch lawyers", error);
+      }
+    };
+
+    const fetchClients = async () => {
+      try {
+        const response = await fetch('http://localhost:3002/getUsers', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!response.ok) throw new Error('Failed to fetch clients');
+        
+        const data = await response.json();
+        const users = Array.isArray(data.users) ? data.users : [];
+        setClients(users
+          .filter((u: { user_id?: number }) => u && u.user_id !== undefined && u.user_id !== null)
+          .map((u: { user_id: number; full_name?: string; email?: string; phone_number?: string }) => ({
+            id: u.user_id.toString(),
+            name: u.full_name || 'Unknown User',
+            email: u.email || 'No Email',
+            phone: u.phone_number || ''
+          })));
+      } catch (error) {
+        console.error("Failed to fetch clients", error);
+      }
+    };
+
     // Redirect if not authenticated
     if (!isLoading && !user) {
       router.push('/logins/admin');
+    } else if (user) {
+      fetchLawyers();
+      fetchClients();
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, token]);
 
-  const handleLawyerStatusChange = (lawyerId: string, newStatus: 'verified' | 'rejected') => {
-    setLawyers(lawyers.map(lawyer => 
-      lawyer.id === lawyerId ? { ...lawyer, status: newStatus } : lawyer
-    ));
-    alert(`Lawyer ${newStatus} successfully!`);
-  };
 
-  const handleDeleteLawyer = (lawyerId: string) => {
-    if (window.confirm('Are you sure you want to delete this lawyer?')) {
-      setLawyers(lawyers.filter(lawyer => lawyer.id !== lawyerId));
-      alert('Lawyer deleted successfully!');
-    }
-  };
-
-  const handleEditLawyer = (lawyerId: string) => {
-    alert(`Edit functionality for lawyer ${lawyerId} is not yet implemented.`);
-  };
-
-  const handleDeleteClient = (clientId: string) => {
-    if (window.confirm('Are you sure you want to delete this client?')) {
-      setClients(clients.filter(client => client.id !== clientId));
-      alert('Client deleted successfully!');
-    }
-  };
 
   const renderContent = () => {
     switch (currentSection) {
       case 'home':
-        return <Homes lawyers={lawyers} clients={clients} />;
+        return <Homes lawyers={lawyers as any} clients={clients as any} />;
 
       case 'lawyers':
-        return <Lawyers lawyers={lawyers} onStatusChange={handleLawyerStatusChange} onDelete={handleDeleteLawyer} onEdit={handleEditLawyer} />;
+        return <Lawyers />;
 
       case 'clients':
-        return <Clients clients={clients} onDelete={handleDeleteClient} />;
+        return <Clients />;
 
       case 'locations':
         return <Locations locations={mockLocations} />;
+      case 'support':
+        return <Support />;
+      case 'profile':
+        return <Profile />;
       default:
         return null;
     }
@@ -242,9 +191,9 @@ export default function AdminDashboard() {
           >
             <Scale className="w-5 h-5" />
             <span>Manage Lawyers</span>
-            {lawyers.filter(l => l.status === 'pending').length > 0 && (
+            {(lawyers as any).filter((l: any) => l.status === 'pending').length > 0 && (
               <span className="ml-auto bg-yellow-600 text-white text-xs rounded-full px-2 py-1">
-                {lawyers.filter(l => l.status === 'pending').length}
+                {(lawyers as any).filter((l: any) => l.status === 'pending').length}
               </span>
             )}
           </button>
@@ -262,6 +211,36 @@ export default function AdminDashboard() {
           >
             <MapPin className="w-5 h-5" />
             <span>Manage Locations</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setCurrentSection('support');
+              setSidebarOpen(false);
+            }}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              currentSection === 'support'
+                ? 'bg-gray-100 text-gray-900'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <ShieldAlert className="w-5 h-5" />
+            <span>Support Inbox</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setCurrentSection('profile');
+              setSidebarOpen(false);
+            }}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              currentSection === 'profile'
+                ? 'bg-gray-100 text-gray-900'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <Settings className="w-5 h-5" />
+            <span>Admin Settings</span>
           </button>
         </nav>
 
@@ -292,10 +271,20 @@ export default function AdminDashboard() {
             </button>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">{user?.fullName || 'Admin'}</span>
-              <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
-                <span className="text-white font-semibold">
-                  {user?.fullName?.charAt(0).toUpperCase() || 'A'}
-                </span>
+              <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-700 relative">
+                {user?.profile_picture ? (
+                  <Image 
+                    src={`${API_BASE}${user.profile_picture}`} 
+                    alt="Profile" 
+                    fill 
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <span className="text-white font-semibold">
+                    {user?.fullName?.charAt(0).toUpperCase() || 'A'}
+                  </span>
+                )}
               </div>
             </div>
           </div>

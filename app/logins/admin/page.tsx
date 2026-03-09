@@ -1,9 +1,18 @@
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, ArrowLeft } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 
+
+type AuthUser = {
+  userId: number;
+  email: string;
+  fullName: string;
+  serialCode: string;
+  serialCodeExpiresAt: string;
+};
+type LoginResponse = { token: string; user: AuthUser };
 export default function AdminLogin() {
   const [formData, setFormData] = useState({
     email: '',
@@ -20,25 +29,15 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/login_admin', {
+      const res = await fetch('http://localhost:3002/login_admin', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.message || 'Login failed. Please check your credentials.');
-        return;
-      }
-
-      const data = await response.json();
-      // Save token and user data to context and localStorage
+      const data: LoginResponse = await res.json();
+      if (!res.ok) throw new Error((data as { message?: string }).message || 'Login failed');
       login(data.token, data.user);
       router.push('/dash/admin');
-
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
     } finally {
@@ -55,19 +54,8 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        {/* Back Button */}
-        <button
-          onClick={() => router.back()}
-          className="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </button>
-
-        {/* Card */}
+      <div className="container max-w-md w-full" data-sr>
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
@@ -77,8 +65,6 @@ export default function AdminLogin() {
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h2>
             <p className="text-gray-600">Access the administration panel</p>
           </div>
-
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -110,13 +96,11 @@ export default function AdminLogin() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition"
               />
             </div>
-
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
-
             <button
               type="submit"
               disabled={loading}
@@ -125,15 +109,11 @@ export default function AdminLogin() {
               {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
-
-          {/* Footer */}
-          <div className="mt-6 text-center">
+          <div id="divider" className="my-6" />
+          <div className="mt-2 text-center">
             <p className="text-gray-600">
               Don&apos;t have an account?{' '}
-              <a
-                href="/register/adminregistration"
-                className="text-gray-800 hover:text-gray-900 font-semibold"
-              >
+              <a href="/register/admin" className="text-gray-800 hover:text-gray-900 font-semibold">
                 Register
               </a>
             </p>

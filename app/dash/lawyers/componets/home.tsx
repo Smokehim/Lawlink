@@ -15,24 +15,16 @@ interface User {
   certificates?: string[];
 }
 
-interface Request {
-  id: string;
-  clientName: string;
-  requestDetails: string;
-  date: string;
-  status: string;
-}
-
 interface HomeProps {
   user: User | null;
-  requests: Request[];
+  requestsCount: number;
 }
 
-export default function Home({ user, requests }: HomeProps) {
+export default function Home({ user, requestsCount }: HomeProps) {
   return (
     <div>
       <h2 className="text-3xl font-bold text-gray-900 mb-6">Welcome, {user?.fullName || 'Lawyer'}!</h2>
-      
+
       {/* Status Badge */}
       <div className="mb-6">
         {user?.status === 'verified' && (
@@ -55,10 +47,10 @@ export default function Home({ user, requests }: HomeProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-600">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Pending Requests</h3>
-          <p className="text-3xl font-bold text-purple-600">{requests.length}</p>
+          <p className="text-3xl font-bold text-purple-600">{requestsCount}</p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-600">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Active Clients</h3>
@@ -69,7 +61,7 @@ export default function Home({ user, requests }: HomeProps) {
           <p className="text-3xl font-bold text-blue-600">12</p>
         </div>
       </div>
-      
+
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-4">Professional Information</h3>
         <div className="space-y-3">
@@ -83,12 +75,11 @@ export default function Home({ user, requests }: HomeProps) {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Status:</span>
-            <span className={`font-semibold ${
-              user?.status === 'verified' ? 'text-green-600' :
-              user?.status === 'pending' ? 'text-yellow-600' :
-              'text-red-600'
-            }`}>
-              {user?.status?.charAt(0).toUpperCase() + user?.status?.slice(1)}
+            <span className={`font-semibold ${user?.status === 'verified' ? 'text-green-600' :
+                user?.status === 'pending' ? 'text-yellow-600' :
+                  'text-red-600'
+              }`}>
+              {user?.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : ''}
             </span>
           </div>
         </div>

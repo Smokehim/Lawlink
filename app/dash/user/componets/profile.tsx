@@ -1,177 +1,299 @@
-"use client"
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Camera, User as UserIcon, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import ChangePassword from './changePassword';
 import { useAuth } from '@/app/context/AuthContext';
-interface User {
-  id: string;
-  email: string;
-  fullName: string;
-  phone: string;
-  gender: string;
-  role: 'client' | 'lawyer' | 'admin';
-}
 
-export default function Profile() {
-    const [profileData, setProfileData] = useState<User | null>(null);
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
-    const { user, token } = useAuth();
+const API_BASE = 'http://localhost:3002';
+
+const UserProfile = () => {
+    const { user, token, logout, setUserData } = useAuth();
+    const [activeTab, setActiveTab] = useState<'info' | 'password' | 'support' | 'delete'>('info');
+
+    // State for update form
+    const [formData, setFormData] = useState({
+        full_name: '',
+        email: '',
+        phone_number: ''
+    });
+
+    // State for delete form
+    const [deletePassword, setDeletePassword] = useState('');
+    const [deleteEmail, setDeleteEmail] = useState('');
+    const [status, setStatus] = useState('');
+    const [message, setMessage] = useState('');
+
+    // Upload state
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (user) {
-            const userData: User = {
-                id: user.userId?.toString() || 'default-user-id',
+            setFormData(prev => ({
+                ...prev,
+                full_name: user.fullName || '',
                 email: user.email || '',
-                fullName: user.fullName || '',
-                phone: '',
-                gender: 'Not specified',
-                role: 'client',
-            };
-            setProfileData(userData);
+                phone_number: user.phone || user.phone_number || ''
+            }));
         }
     }, [user]);
+    // handle support form submission
+    const handleUpdateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-    const handleProfileUpdate = async (e: React.FormEvent) => {
+    const handleUpdateSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
-        setSuccess(false);
+        if (!user) return;
+        setStatus('Updating...');
 
-        if (!profileData || !user) {
-            setError('Profile data not loaded');
-            setLoading(false);
-            return;
-        }
-
-        const updatePayload: {
-            full_name: string;
-            email: string;
-            phone_number: string;
-            gender: string;
-            password?: string;
-            user_id: number
-        } = {
-            full_name: profileData.fullName,
-            email: profileData.email,
-            phone_number: profileData.phone,
-            gender: profileData.gender,
-            user_id: user.userId 
-        };
-
-        if (password) {
-            updatePayload.password = password;
-        }
+        // Send all fields, allowing empty strings to clear values (except password if empty)
+        const updates = { full_name: formData.full_name, phone_number: formData.phone_number };
 
         try {
-            const response = await fetch(`http://localhost:3002/updateUser/:user_id`, {
+            const res = await fetch(`${API_BASE}/users/${user.userId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(updatePayload),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates)
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to update profile');
+            if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || 'Update failed'); }
+            setStatus('Profile updated successfully!');
+            if (user) {
+                setUserData({
+                    ...user,
+                    fullName: updates.full_name,
+                    phone: updates.phone_number
+                });
             }
-
-            setSuccess(true);
-            setPassword('');
-            setTimeout(() => setSuccess(false), 3000);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
-        } finally {
-            setLoading(false);
+        } catch (error) {
+            setStatus(`Update Error: ${error}`);
         }
     };
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !user) return;
+
+        setStatus('');
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+        formData.append('userId', user.userId.toString());
+        formData.append('role', 'user');
+
+        try {
+            const res = await fetch(`${API_BASE}/upload-profile-picture`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Upload failed');
+
+            setStatus('Profile picture updated!');
+            setUserData({
+                ...user,
+                profile_picture: data.profile_picture
+            });
+            // Update auth token local storage (optional depending on how user data is persisted but setUserData does it)
+        } catch (err: unknown) {
+            setStatus(`Upload Error: ${(err as Error).message}`);
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user) return;
+        setStatus('Sending...');
+
+        try {
+            const res = await fetch(`${API_BASE}/support/contact-admin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sender_id: user.userId,
+                    sender_role: 'user',
+                    message_text: message
+                })
+            });
+            if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || 'Send failed'); }
+
+            setStatus('Message sent successfully!');
+            setMessage('');
+        } catch (error) {
+            setStatus(`Error: ${error}`);
+        }
+    };
+
+    const handleDeleteSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user) return;
+        if (deleteEmail !== user.email) {
+            setStatus('Delete Error: The entered email does not match your account email.');
+            return;
+        }
+        if (!window.confirm('Are you sure you want to permanently delete your account?')) return;
+
+        setStatus('Deleting account...');
+        try {
+            const res = await fetch(`${API_BASE}/delete_user`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: user.userId,
+                    email: user.email,
+                    password: deletePassword
+                })
+            });
+            if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || 'Delete failed'); }
+            setStatus('Account deleted successfully. You will be logged out.');
+            // Add your logout logic here (e.g., clear local storage, redirect)
+            logout();
+        } catch (error) {
+            setStatus(`Delete Error: ${error}`);
+        }
+    };
+
+    if (!user) return <p>Loading profile...</p>;
+
     return (
-        <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Profile Settings</h2>
-            {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-                    {error}
-                </div>
-            )}
-            {success && (
-                <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
-                    Profile updated successfully!
-                </div>
-            )}
-            <div className="bg-white rounded-lg shadow-md p-6">
-                {profileData ? (
-                    <form onSubmit={handleProfileUpdate} className="space-y-5">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                            <input
-                                type="text"
-                                title="Full Name"
-                                value={profileData.fullName || ''}
-                                onChange={(e) => setProfileData({ ...profileData, id: profileData.id, fullName: e.target.value })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+        <div className="space-y-6">
+            <div className="flex flex-wrap gap-4 border-b pb-4">
+                <button
+                    onClick={() => setActiveTab('info')}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors ${activeTab === 'info' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                >
+                    Profile Info
+                </button>
+                <button
+                    onClick={() => setActiveTab('password')}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors ${activeTab === 'password' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                >
+                    Change Password
+                </button>
+                <button
+                    onClick={() => setActiveTab('support')}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors ${activeTab === 'support' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                >
+                    Support
+                </button>
+                <button
+                    onClick={() => setActiveTab('delete')}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors ${activeTab === 'delete' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                >
+                    Delete Account
+                </button>
+            </div>
+
+            <div>
+                {activeTab === 'info' && (
+                    <div className="bg-white p-6 rounded-lg shadow-md">
+                        <h2 className="text-2xl font-bold mb-6">Update Your Profile</h2>
+
+                        {/* Profile Picture Section */}
+                        <div className="flex flex-col items-center mb-8">
+                            <div className="relative">
+                                {user?.profile_picture ? (
+                                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-100 relative bg-gray-50">
+                                        <Image
+                                            src={`${API_BASE}${user.profile_picture}`}
+                                            alt="Profile"
+                                            fill
+                                            className="object-cover"
+                                            unoptimized
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="w-32 h-32 rounded-full border-4 border-gray-100 bg-gray-50 flex items-center justify-center">
+                                        <UserIcon className="w-16 h-16 text-gray-300" />
+                                    </div>
+                                )}
+
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={isUploading}
+                                    className="absolute bottom-0 right-0 p-2 bg-blue-600 rounded-full text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                >
+                                    {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
+                                </button>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleImageUpload}
+                                    accept="image/jpeg,image/png,image/jpg"
+                                    className="hidden"
+                                />
+                            </div>
+                            <p className="text-sm text-gray-500 mt-3">Upload a new picture (JPG/PNG)</p>
+                        </div>
+
+                        <form onSubmit={handleUpdateSubmit} className="space-y-4">
+                            <input className="w-full p-2 border rounded" name="full_name" value={formData.full_name} onChange={handleUpdateChange} placeholder="Full Name" />
+                            <input className="w-full p-2 border rounded bg-gray-100" name="email" type="email" value={formData.email} readOnly placeholder="Email" />
+                            <input className="w-full p-2 border rounded" name="phone_number" value={formData.phone_number} onChange={handleUpdateChange} placeholder="Phone Number" />
+                            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Update Profile</button>
+                            {status && !status.includes('Delete') && <p className="mt-4 font-semibold">{status}</p>}
+                        </form>
+                    </div>
+                )}
+
+                {activeTab === 'password' && (<ChangePassword user={user} token={token} />)}
+
+                {activeTab === 'support' && (
+                    <div className="bg-white p-6 rounded-lg shadow-md mt-6">
+                        <h2 className="text-xl font-bold mb-4">Contact Support</h2>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <textarea
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                placeholder="Describe your issue or question..."
+                                required
+                                rows={4}
                             />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                            <input
-                                type="email"
-                                title="Email"
-                                value={profileData.email || ''}
-                                onChange={(e) => setProfileData({ ...profileData, id: profileData.id, email: e.target.value })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                            <input
-                                type="tel"
-                                title="Phone"
-                                value={profileData.phone || ''}
-                                onChange={(e) => setProfileData({ ...profileData, id: profileData.id, phone: e.target.value })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-                            <select
-                                aria-label="Gender"
-                                title="Gender"
-                                value={profileData.gender || ''}
-                                onChange={(e) => setProfileData({ ...profileData, id: profileData.id, gender: e.target.value })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                            >
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Send Message</button>
+                        </form>
+                        {status && <p className="mt-2 text-sm font-medium text-gray-700">{status}</p>}
+                    </div>
+                )}
+
+                {activeTab === 'delete' && (
+                    <div className="bg-white p-6 rounded-lg shadow-md">
+                        <h2 className="text-2xl font-bold mb-4 text-red-600">Delete Your Account</h2>
+                        <form onSubmit={handleDeleteSubmit} className="space-y-4">
+                            <p className="text-gray-700">This action is irreversible. Please enter your password to confirm.</p>
                             <input
                                 type="password"
-                                title="Password"
-                                placeholder="Enter new password (leave blank to keep current)"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full p-2 border rounded"
+                                value={deletePassword}
+                                onChange={(e) => setDeletePassword(e.target.value)}
+                                placeholder="Enter your current password"
+                                required
                             />
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        >
-                            {loading ? 'Updating...' : 'Update Profile'}
-                        </button>
-                    </form>
-                ) : (
-                    <p className="text-gray-600">Loading profile data...</p>
+                            <input
+                                type="email"
+                                className="w-full p-2 border rounded"
+                                value={deleteEmail}
+                                onChange={(e) => setDeleteEmail(e.target.value)}
+                                placeholder="Enter your email to confirm"
+                                required
+                            />
+                            <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete Account</button>
+                            {status && status.includes('Delete') && <p className="mt-4 font-semibold">{status}</p>}
+                        </form>
+                    </div>
                 )}
             </div>
         </div>
     );
-}
+};
+
+export default UserProfile;

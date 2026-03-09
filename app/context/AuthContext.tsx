@@ -5,8 +5,20 @@ interface User {
   userId: number;
   email: string;
   fullName: string;
-  serialCode: string;
-  serialCodeExpiresAt: string;
+  // Optional fields for different user roles
+  serialCode?: string;
+  serialCodeExpiresAt?: string;
+  phone?: string;
+  phone_number?: string;
+  number?: string; // Legacy support
+  gender?: string;
+  profile_picture?: string;
+  province?:string;
+  district?: string;
+  specialization?: string;
+  status?: string;
+  certificates?: string[];
+  bio?: string;
 }
 
 interface AuthContextType {

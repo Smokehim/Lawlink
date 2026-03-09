@@ -1,41 +1,55 @@
 import React from 'react'
 import Image from 'next/image';
-import { FaFacebook, FaInstagram } from 'react-icons/fa';
-import { FaXTwitter } from 'react-icons/fa6';
-import { homeColors } from '../../interfaces/colors'
+import { FaFacebook, FaLinkedinIn, FaTwitter } from 'react-icons/fa';
 
 const PartnerCard = () => {
     const Datas = [
-        {id: 1, name:'james', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
-        {id: 2, name:'BRIGHT MWAMBA', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
-        {id: 3, name:'BLOCK', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
-        {id: 4, name:'BRIGHT MWAMBA', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
-         {id: 5, name:'james', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
-        {id: 6, name:'BRIGHT MWAMBA', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
-        {id: 7, name:'BLOCK', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
-        {id: 8, name:'BRIGHT MWAMBA', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
-    
+        {id: 1, name:'James Mulenga', role: 'Chief Executive Officer', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
+        {id: 2, name:'Bright Mwamba', role: 'Head of Legal Research', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
+        {id: 3, name:'Sarah Kunda', role: 'Operations Director', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
+        {id: 4, name:'Kondwani Phiri', role: 'Founding Partner', image:'/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg'},
     ]
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
-      {
-        Datas.map((items)=>(
-             <div key={items.id} className='flex flex-col items-center'>
-                <Image src={items.image} alt={items.name} width={3500} className="rounded-xl shadow-3xl" height={350} />
-                <div className="flex flex-col items-center mt-2">
-                    <h1 className={homeColors.textPrimary}>{items.name}</h1>
-                    <p className={`${homeColors.textPrimary} text-sm`}>PARTNER</p>
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {Datas.map((item) => (
+                <div key={item.id} className="group relative">
+                    {/* Card container */}
+                    <div className="bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-100 transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl">
+                        {/* Image area */}
+                        <div className="relative h-72 overflow-hidden">
+                            <Image 
+                                src={item.image} 
+                                alt={item.name} 
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            
+                            {/* Social hover */}
+                            <div className="absolute bottom-6 left-0 right-0 flex justify-center space-x-4 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
+                                <a href="#" className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-blue-600 transition-colors">
+                                    <FaFacebook />
+                                </a>
+                                <a href="#" className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-blue-600 transition-colors">
+                                    <FaLinkedinIn />
+                                </a>
+                                <a href="#" className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-blue-600 transition-colors">
+                                    <FaTwitter />
+                                </a>
+                            </div>
+                        </div>
+                        
+                        {/* Content area */}
+                        <div className="p-8 text-center text-gray-900">
+                            <h3 className="text-xl font-bold group-hover:text-blue-600 transition-colors">{item.name}</h3>
+                            <p className="text-blue-600 text-sm font-bold uppercase tracking-widest mt-1 opacity-80">{item.role}</p>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex justify-center space-x-2 mt-2 text-gray-600">
-                    <FaFacebook  className='text-2xl'/>
-                    <FaXTwitter className='text-2xl'/>
-                     <FaInstagram className='text-2xl'/>
-                </div>
-            </div>
-        ))
-      }
-    </div>
-  )
+            ))}
+        </div>
+    )
 }
 
 export default PartnerCard

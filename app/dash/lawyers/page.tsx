@@ -7,6 +7,7 @@ import Clients from './componets/clients';
 import Availability from './componets/availability';
 import Profile from './componets/profile';
 import Messages from './componets/messages';
+import Image from 'next/image';
 import { 
   Home as HomeIcon, 
   Users, 
@@ -17,6 +18,8 @@ import {
   X,
   MessageSquare
 } from 'lucide-react';
+
+const API_BASE = 'http://localhost:3002';
 
 interface User {
   id: string;
@@ -34,156 +37,54 @@ interface User {
 
 type Section = 'home' | 'clients' | 'availability' | 'messages' | 'profile';
 
-// Mock client requests
-const mockRequests = [
-  {
-    id: '1',
-    clientName: 'John Mwansa',
-    requestDetails: 'Need consultation for corporate contract review',
-    date: '2026-01-28',
-    status: 'pending',
-  },
-  {
-    id: '2',
-    clientName: 'Mary Lungu',
-    requestDetails: 'Family law matter - divorce proceedings',
-    date: '2026-01-27',
-    status: 'pending',
-  },
-  {
-    id: '3',
-    clientName: 'David Tembo',
-    requestDetails: 'Property dispute consultation',
-    date: '2026-01-26',
-    status: 'pending',
-  },
-];
+// Mock client requests removed - using real data from backend
 
 export default function LawyerDashboard() {
   const [currentSection, setCurrentSection] = useState<Section>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [profileData, setProfileData] = useState<User | null>({
-    id: '1',
-    email: 'lawyer@example.com',
-    fullName: 'Sarah Banda',
-    phone: '+260 966 789 012',
-    gender: 'female',
-    role: 'lawyer',
-    province: 'Lusaka',
-    district: 'Lusaka',
-    specialization: 'Corporate Law',
-    status: 'verified',
-    certificates: ['Law Degree - University of Zambia', 'Bar License - 2020'],
-  });
-  const [requests, setRequests] = useState(mockRequests);
+  const [profileData, setProfileData] = useState<User | null>(null);
+  const [requestsCount, setRequestsCount] = useState(0);
   const { user, logout, isLoading } = useAuth();
   const router = useRouter();
   
   useEffect(() => {
-    // Redirect if not authenticated
     if (!isLoading && !user) {
       router.push('/logins/lawyer');
+    } else if (user) {
+      setProfileData({
+        id: user.userId.toString(),
+        email: user.email,
+        fullName: user.fullName,
+        phone: user.phone || user.phone_number || user.number || '',
+        gender: user.gender || '',
+        role: 'lawyer',
+        province: user.province,
+        district: user.district,
+        specialization: user.specialization,
+        status: user.status,
+        certificates: user.certificates,
+      });
     }
   }, [user, isLoading, router]);
   
-  // Messages state (shared with clients action)
-  const [clientMessages, setClientMessages] = useState([
-    {
-      id: '1',
-      clientName: 'John Mwansa',
-      clientEmail: 'john@example.com',
-      content: 'Need consultation for corporate contract review',
-      date: '2026-01-28',
-      status: 'received',
-      replies: [],
-    },
-    {
-      id: '2',
-      clientName: 'Mary Lungu',
-      clientEmail: 'mary@example.com',
-      content: 'Family law matter - divorce proceedings',
-      date: '2026-01-27',
-      status: 'received',
-      replies: [],
-    },
-  ]);
-  
-  // Availability state
-  const [unavailableDates, setUnavailableDates] = useState<string[]>([
-    '2026-02-15',
-    '2026-02-20',
-  ]);
 
-  const [newUnavailableDate, setNewUnavailableDate] = useState('');
 
-  const handleLogout = () => {
-    localStorage.removeItem('lawyerToken');
-    window.location.href = '/lawyerslogin';
-  };
-
-  const handleRequestAction = (requestId: string, action: 'accept' | 'reject') => {
-    const request = requests.find(r => r.id === requestId);
-    
-    if (action === 'accept' && request) {
-      // Create a message from the accepted client
-      const newMessage = {
-        id: Date.now().toString(),
-        clientName: request.clientName,
-        clientEmail: `${request.clientName.toLowerCase().replace(' ', '.')}@example.com`,
-        content: request.requestDetails,
-        date: new Date().toISOString().split('T')[0],
-        status: 'received',
-        replies: [],
-      };
-      setClientMessages((prev) => [newMessage, ...prev]);
-    }
-    
-    setRequests(requests.filter(req => req.id !== requestId));
-    alert(`Request ${action}ed successfully!`);
-  };
-
-  const handleProfileUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('Profile updated successfully!');
-  };
-
-  const handleAddUnavailableDate = () => {
-    if (newUnavailableDate && !unavailableDates.includes(newUnavailableDate)) {
-      setUnavailableDates([...unavailableDates, newUnavailableDate]);
-      setNewUnavailableDate('');
-    }
-  };
-
-  const handleRemoveUnavailableDate = (date: string) => {
-    setUnavailableDates(unavailableDates.filter(d => d !== date));
-  };
 
   const renderContent = () => {
     switch (currentSection) {
       case 'home':
-        return <Home user={profileData} requests={requests} />;
+        return <Home user={profileData} requestsCount={requestsCount} />;
       case 'clients':
-        return <Clients requests={requests} onRequestAction={handleRequestAction} />;
+        return <Clients 
+          onRequestsUpdate={setRequestsCount} 
+          onViewMessages={() => setCurrentSection('messages')}
+        />;
       case 'availability':
-        return (
-          <Availability
-            unavailableDates={unavailableDates}
-            newUnavailableDate={newUnavailableDate}
-            onNewDateChange={setNewUnavailableDate}
-            onAddDate={handleAddUnavailableDate}
-            onRemoveDate={handleRemoveUnavailableDate}
-          />
-        );
+        return <Availability />;
       case 'messages':
-        return <Messages messages={clientMessages} onMessagesChange={setClientMessages} />;
+        return <Messages />;
       case 'profile':
-        return (
-          <Profile
-            profileData={profileData}
-            onProfileChange={setProfileData}
-            onProfileUpdate={handleProfileUpdate}
-          />
-        );
+        return <Profile />;
       default:
         return null;
     }
@@ -233,9 +134,9 @@ export default function LawyerDashboard() {
           >
             <Users className="w-5 h-5" />
             <span>Clients</span>
-            {requests.length > 0 && (
+            {requestsCount > 0 && (
               <span className="ml-auto bg-purple-600 text-white text-xs rounded-full px-2 py-1">
-                {requests.length}
+                {requestsCount}
               </span>
             )}
           </button>
@@ -288,10 +189,7 @@ export default function LawyerDashboard() {
 
         <div className="absolute bottom-0 w-full p-4 border-t">
           <button
-            onClick={() => {
-              logout();
-              router.push('/logins/lawyer');
-            }}
+            onClick={logout}
             className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
@@ -314,10 +212,20 @@ export default function LawyerDashboard() {
             </button>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">{user?.fullName || 'Lawyer'}</span>
-              <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-semibold">
-                  {user?.fullName?.charAt(0).toUpperCase() || 'L'}
-                </span>
+              <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-purple-600 relative">
+                {user?.profile_picture ? (
+                  <Image 
+                    src={`${API_BASE}${user.profile_picture}`} 
+                    alt="Profile" 
+                    fill 
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <span className="text-white font-semibold">
+                    {user?.fullName?.charAt(0).toUpperCase() || 'L'}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -325,7 +233,7 @@ export default function LawyerDashboard() {
 
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto p-6">
-          {isLoading ? (
+          {isLoading || !profileData ? (
             <div className="flex items-center justify-center h-full">
               <p className="text-gray-500">Loading...</p>
             </div>

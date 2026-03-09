@@ -1,4 +1,4 @@
-"use client"
+import { useState, useEffect } from 'react';
 import { 
   Search, 
   MessageSquare, 
@@ -6,52 +6,6 @@ import {
   
 } from 'lucide-react';
 
-const mockLawyers = [
-  {
-    id: '1',
-    name: 'Sarah Banda',
-    photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300',
-    province: 'Lusaka',
-    district: 'Lusaka',
-    specialization: 'Corporate Law',
-    rating: 4.8,
-    email: 'sarah.banda@legal.zm',
-    phone: '+260 966 789 012',
-  },
-  {
-    id: '2',
-    name: 'James Phiri',
-    photo: 'https://images.unsplash.com/photo-1556157382-97eda2f9e2bf?w=300',
-    province: 'Lusaka',
-    district: 'Chilanga',
-    specialization: 'Family Law',
-    rating: 4.6,
-    email: 'james.phiri@legal.zm',
-    phone: '+260 977 456 789',
-  },
-  {
-    id: '3',
-    name: 'Grace Mwape',
-    photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300',
-    province: 'Copperbelt',
-    district: 'Ndola',
-    specialization: 'Criminal Law',
-    rating: 4.9,
-    email: 'grace.mwape@legal.zm',
-    phone: '+260 955 123 456',
-  },
-  {
-    id: '4',
-    name: 'Peter Sichone',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300',
-    province: 'Southern',
-    district: 'Livingstone',
-    specialization: 'Property Law',
-    rating: 4.7,
-    email: 'peter.sichone@legal.zm',
-    phone: '+260 966 234 567',
-  },
-];
 const mockMessages = [
   {
     id: '1',
@@ -74,6 +28,19 @@ interface HomesProps {
 }
 
 export default function Homes({ onNavigate }: HomesProps) {
+    const [lawyerCount, setLawyerCount] = useState(0);
+
+    useEffect(() => {
+        fetch('http://localhost:3002/lawyers/verified')
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    setLawyerCount(data.length);
+                }
+            })
+            .catch(err => console.error('Failed to fetch verified lawyer count', err));
+    }, []);
+
     return (
         <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Welcome</h2>
@@ -84,7 +51,7 @@ export default function Homes({ onNavigate }: HomesProps) {
                   title="Navigate to search lawyers"
                 >
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Available Lawyers</h3>
-                    <p className="text-3xl font-bold text-blue-600">{mockLawyers.length}</p>
+                    <p className="text-3xl font-bold text-blue-600">{lawyerCount}</p>
                 </button>
                 <button
                   onClick={() => onNavigate('messages')}
