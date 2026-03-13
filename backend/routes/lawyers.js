@@ -50,7 +50,7 @@ export default function Lawyerss(app) {
         { name: 'license_file', maxCount: 1 }
     ]), async (req, res) => {
         try {
-            const { full_name, email, phone_number, password, province, district, specialization, bar_number } = req.body;
+            const { full_name, email, phone_number, password, province, district, specialization, bar_number, lawyer_type } = req.body;
             const profilePicture = req.files['profile_picture'] ? `/uploads/profile_pictures/${req.files['profile_picture'][0].filename}` : null;
             const licenseFile = req.files['license_file'] ? `/uploads/lawyer_docs/${req.files['license_file'][0].filename}` : null;
             console.log("Received lawyer signup data:", full_name, email, phone_number, password);
@@ -73,9 +73,9 @@ export default function Lawyerss(app) {
                 console.log(`Verification code for new lawyer ${email} is: ${verificationCode}`);
 
                 // Store lawyer data in database with pending status
-                const insertSql = `INSERT INTO lawyers (full_name, email, phone_number, password, province, district, specialization, bar_number, profile_picture, license_file, verification_status, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unverified', ?)`;
+                const insertSql = `INSERT INTO lawyers (full_name, email, phone_number, password, province, district, specialization, bar_number, lawyer_type, profile_picture, license_file, verification_status, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unverified', ?)`;
                 
-                db.query(insertSql, [full_name, email, phone_number, hashedPassword, province, district, specialization, bar_number, profilePicture, licenseFile, verificationCode], (insertErr, insertResult) => {
+                db.query(insertSql, [full_name, email, phone_number, hashedPassword, province, district, specialization, bar_number, lawyer_type, profilePicture, licenseFile, verificationCode], (insertErr, insertResult) => {
                     if (insertErr) return res.status(500).json({ message: "Database error", error: insertErr.message });
 
                     const lawyerId = insertResult.insertId;
@@ -161,6 +161,8 @@ export default function Lawyerss(app) {
                             lawyerId: lawyer_id,
                             email: lawyer.email,
                             fullName: lawyer.full_name,
+                            profile_picture: lawyer.profile_picture,
+                            lawyer_type: lawyer.lawyer_type,
                             serialCode: serialCode,
                             expiresAt: serialCodeExpiresAt
                         }
@@ -246,10 +248,12 @@ export default function Lawyerss(app) {
                         userId: lawyer.lawyer_id,
                         email: lawyer.email,
                         fullName: lawyer.full_name,
+                        profile_picture: lawyer.profile_picture,
                         phone: lawyer.phone_number,
                         province: lawyer.province,
                         district: lawyer.district,
                         specialization: lawyer.specialization,
+                        lawyer_type: lawyer.lawyer_type,
                         role: 'lawyer'
                     }
                 });
@@ -261,10 +265,11 @@ export default function Lawyerss(app) {
         }
     });
 
-    app.put('/updateLawyer/:lawyer_id', async (req, res) => {
+    app.put('/updateLawyer/:lawyer_id', upload.single('profile_picture'), async (req, res) => {
         try {
             const { lawyer_id } = req.params;
-            const { full_name, email, phone_number, gender, province, district, specialization, bio, password } = req.body;
+            const { full_name, email, phone_number, gender, province, district, specialization, bio, password, lawyer_type } = req.body;
+            const profilePicture = req.file ? `/uploads/profile_pictures/${req.file.filename}` : undefined;
 
             let updates = [];
             let params = [];
@@ -276,7 +281,9 @@ export default function Lawyerss(app) {
             if (province !== undefined) { updates.push('province = ?'); params.push(province); }
             if (district !== undefined) { updates.push('district = ?'); params.push(district); }
             if (specialization !== undefined) { updates.push('specialization = ?'); params.push(specialization); }
+            if (lawyer_type !== undefined) { updates.push('lawyer_type = ?'); params.push(lawyer_type); }
             if (bio !== undefined) { updates.push('bio = ?'); params.push(bio); }
+            if (profilePicture !== undefined) { updates.push('profile_picture = ?'); params.push(profilePicture); }
 
             if (password) {
                 const salt = await bcrypt.genSalt(10);
@@ -462,6 +469,7 @@ export default function Lawyerss(app) {
         if (email !== undefined) { updates.push('email = ?'); params.push(email); }
         if (phone_number !== undefined) { updates.push('phone_number = ?'); params.push(phone_number); }
         if (specialization !== undefined) { updates.push('specialization = ?'); params.push(specialization); }
+        if (lawyer_type !== undefined) { updates.push('lawyer_type = ?'); params.push(lawyer_type); }
         if (province !== undefined) { updates.push('province = ?'); params.push(province); }
         if (district !== undefined) { updates.push('district = ?'); params.push(district); }
 

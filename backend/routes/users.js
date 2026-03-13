@@ -177,6 +177,7 @@ export default function Users(app){
                         userId: user_id, 
                         email: pendingUser.email, 
                         fullName: pendingUser.full_name, 
+                        profile_picture: pendingUser.profilePicture,
                         serialCode: serialCode, 
                         expiresAt: serialCodeExpiresAt 
                     } 
@@ -241,7 +242,7 @@ export default function Users(app){
                     { expiresIn: '24h' }
                 );
 
-                res.status(200).json({ message: "Login successful", token: token, user: { userId: user.user_id, email: user.email, fullName: user.full_name, serialCode: user.serial_code, serialCodeExpiresAt: user.serial_code_expires_at } });
+                res.status(200).json({ message: "Login successful", token: token, user: { userId: user.user_id, email: user.email, fullName: user.full_name, profile_picture: user.profile_picture, serialCode: user.serial_code, serialCodeExpiresAt: user.serial_code_expires_at } });
             });
     
         } catch (error) {
@@ -326,10 +327,11 @@ export default function Users(app){
     });
 
     // Update user profile
-    app.put('/users/:user_id', async (req, res) => {
+    app.put('/users/:user_id', upload.single('profile_picture'), async (req, res) => {
         try {
             const { user_id } = req.params;
             const { full_name, phone_number, gender } = req.body;
+            const profilePicture = req.file ? `/uploads/profile_pictures/${req.file.filename}` : undefined;
 
             let updates = [];
             let params = [];
@@ -337,6 +339,7 @@ export default function Users(app){
             if (full_name !== undefined) { updates.push('full_name = ?'); params.push(full_name); }
             if (phone_number !== undefined) { updates.push('phone_number = ?'); params.push(phone_number); }
             if (gender !== undefined) { updates.push('gender = ?'); params.push(gender); }
+            if (profilePicture !== undefined) { updates.push('profile_picture = ?'); params.push(profilePicture); }
 
             if (updates.length === 0) {
                 return res.status(400).json({ message: "No fields to update" });
