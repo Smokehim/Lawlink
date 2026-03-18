@@ -16,6 +16,7 @@ export default function LawyerRegistration() {
     district: '',
     specialization: '',
     barNumber: '',
+    lawyer_type: 'lawyer',
     password: '',
     confirmPassword: '',
   });
@@ -46,6 +47,7 @@ export default function LawyerRegistration() {
       fd.append('district', formData.district);
       fd.append('specialization', formData.specialization);
       fd.append('bar_number', formData.barNumber);
+      fd.append('lawyer_type', formData.lawyer_type);
       fd.append('password', formData.password);
       
       if (profilePic) fd.append('profile_picture', profilePic);
@@ -85,13 +87,21 @@ export default function LawyerRegistration() {
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Back Button */}
-        <button
-          onClick={() => router.push('/logins/lawyerlogin')}
-          className="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Login
-        </button>
+        <div className="flex justify-between items-center mb-4">
+          <button
+            onClick={() => router.push('/logins/lawyer')}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Login
+          </button>
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Go back home
+          </button>
+        </div>
 
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -211,19 +221,20 @@ export default function LawyerRegistration() {
             </div>
 
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
+              <label htmlFor="lawyer_type" className="block text-sm font-medium text-gray-700 mb-2">
+                Professional Role
               </label>
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Enter full name"
+              <select
+                id="lawyer_type"
+                name="lawyer_type"
+                value={formData.lawyer_type}
+                onChange={(e) => setFormData({ ...formData, lawyer_type: e.target.value })}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-              />
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white"
+              >
+                <option value="lawyer">Lawyer</option>
+                <option value="attorney">Attorney</option>
+              </select>
             </div>
             ...
             <div>

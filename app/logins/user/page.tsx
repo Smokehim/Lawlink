@@ -1,7 +1,8 @@
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield } from 'lucide-react';
+import { Shield, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
 
 
@@ -59,6 +60,13 @@ export default function ClientLogin() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="container max-w-md w-full" data-sr>
+        <Link
+          href="/"
+          className="mb-4 inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Go back home
+        </Link>
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">

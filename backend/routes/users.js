@@ -33,7 +33,7 @@ const pendingRegistrations = new Map();
 setInterval(() => {
     const now = Date.now();
     const expirationTime = 10 * 60 * 1000; // 10 minutes
-    
+
     for (const [email, userData] of pendingRegistrations.entries()) {
         if (now - userData.createdAt > expirationTime) {
             pendingRegistrations.delete(email);
@@ -43,24 +43,24 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 const transport = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'mwambajason2@gmail.com',
-    pass: 'feaa fycg nuwl wbgh'
-  }
+    service: 'gmail',
+    auth: {
+        user: 'mwambajason2@gmail.com',
+        pass: 'feaa fycg nuwl wbgh'
+    }
 });
-export default function Users(app){
-    
+export default function Users(app) {
+
     app.post('/registration_User', upload.single('profile_picture'), async (req, res) => {
         try {
             const { full_name, email, phone_number, password, gender } = req.body;
             const profilePicture = req.file ? `/uploads/profile_pictures/${req.file.filename}` : null;
             console.log("Received signup data:", req.body);
-    
+
             if (!password) {
                 return res.status(400).json({ message: "Password is required" });
             }
-    
+
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -78,10 +78,10 @@ export default function Users(app){
                 // Generate a simple 6-digit verification code
                 const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
                 console.log(`Verification code for new user ${email} is: ${verificationCode}`); // For development/testing
-                
+
                 // Generate temporary ID for tracking
                 const tempUserId = crypto.randomBytes(8).toString('hex');
-                
+
                 // Store user data temporarily in memory (not in database)
                 pendingRegistrations.set(email, {
                     tempUserId,
@@ -94,7 +94,7 @@ export default function Users(app){
                     verificationCode,
                     createdAt: Date.now()
                 });
-                
+
                 let mailOptions = {
                     from: 'mwambajason2@gmail.com',
                     to: email,
@@ -102,7 +102,7 @@ export default function Users(app){
                     text: `Your verification code is: ${verificationCode}`
                 };
 
-                transport.sendMail(mailOptions, function(error, info){
+                transport.sendMail(mailOptions, function (error, info) {
                     if (error) {
                         console.log(error);
                     } else {
@@ -116,14 +116,14 @@ export default function Users(app){
                     email: email
                 });
             });
-    
-    
+
+
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: "Server error on signup" });
         }
     });
-    
+
     app.post('/verify_user', (req, res) => {
         const { email, verificationCode } = req.body;
 
@@ -134,11 +134,11 @@ export default function Users(app){
         try {
             // Retrieve pending registration from memory
             const pendingUser = pendingRegistrations.get(email);
-            
+
             if (!pendingUser) {
                 return res.status(404).json({ message: "No pending registration found for this email" });
             }
-            
+
             // Verify the code matches
             if (pendingUser.verificationCode !== verificationCode) {
                 return res.status(400).json({ message: "Invalid verification code" });
@@ -151,7 +151,7 @@ export default function Users(app){
 
             // Now insert the verified user into the database
             const insertSql = `INSERT INTO users (full_name, email, phone_number, password, gender, profile_picture, verification_status, serial_code, serial_code_expires_at) VALUES (?, ?, ?, ?, ?, ?, 'verified', ?, ?)`;
-            
+
             db.query(insertSql, [pendingUser.full_name, pendingUser.email, pendingUser.phone_number, pendingUser.password, pendingUser.gender, pendingUser.profilePicture, serialCode, serialCodeExpiresAt], (insertErr, insertResult) => {
                 if (insertErr) {
                     console.error("Database error:", insertErr);
@@ -159,7 +159,7 @@ export default function Users(app){
                 }
 
                 const user_id = insertResult.insertId;
-                
+
                 // Remove from pending registrations
                 pendingRegistrations.delete(email);
 
@@ -170,17 +170,17 @@ export default function Users(app){
                     { expiresIn: '24h' }
                 );
 
-                res.status(200).json({ 
-                    message: "Email verified and user registered successfully", 
-                    token, 
-                    user: { 
-                        userId: user_id, 
-                        email: pendingUser.email, 
-                        fullName: pendingUser.full_name, 
+                res.status(200).json({
+                    message: "Email verified and user registered successfully",
+                    token,
+                    user: {
+                        userId: user_id,
+                        email: pendingUser.email,
+                        fullName: pendingUser.full_name,
                         profile_picture: pendingUser.profilePicture,
-                        serialCode: serialCode, 
-                        expiresAt: serialCodeExpiresAt 
-                    } 
+                        serialCode: serialCode,
+                        expiresAt: serialCodeExpiresAt
+                    }
                 });
             });
         } catch (err) {
@@ -188,13 +188,13 @@ export default function Users(app){
             return res.status(400).json({ message: "Verification failed" });
         }
     });
-    
-    app.get('/getUsers', (req, res)=>{
+
+    app.get('/getUsers', (req, res) => {
         try {
             const sql = "SELECT * FROM users";
             db.query(sql, (error, result) => {
-                if(error) return res.status(500).json({ message: "Database error", error: error.message });
-                res.status(200).json({message: "Users retrieved successfully", users: result });
+                if (error) return res.status(500).json({ message: "Database error", error: error.message });
+                res.status(200).json({ message: "Users retrieved successfully", users: result });
             })
         } catch (error) {
             console.error("Error retrieving users:", error);
@@ -205,21 +205,21 @@ export default function Users(app){
         try {
             const { email, password } = req.body;
             console.log("Login attempt for email:", email);
-            
-    
+
+
             const sql = "SELECT * FROM users WHERE email = ?";
             db.query(sql, [email], async (err, results) => {
                 console.log("Database query executed");
                 if (err) {
                     return res.status(500).json({ message: "Database error" });
                 }
-    
+
                 if (results.length === 0) {
                     return res.status(401).json({ message: "Invalid email or password" });
                 }
-    
+
                 const user = results[0];
-                
+
 
                 // Check if account is verified
                 if (user.verification_status !== 'verified') {
@@ -229,12 +229,12 @@ export default function Users(app){
                         userId: user.user_id
                     });
                 }
-    
+
                 const isMatch = await bcrypt.compare(password, user.password);
                 if (!isMatch) {
                     return res.status(401).json({ message: "Invalid email or password" });
                 }
-    
+
                 // Generate JWT on successful login
                 const token = jwt.sign(
                     { userId: user.user_id, email: user.email },
@@ -244,7 +244,7 @@ export default function Users(app){
 
                 res.status(200).json({ message: "Login successful", token: token, user: { userId: user.user_id, email: user.email, fullName: user.full_name, profile_picture: user.profile_picture, serialCode: user.serial_code, serialCodeExpiresAt: user.serial_code_expires_at } });
             });
-    
+
         } catch (error) {
             console.log("Server error on login:", error);
             res.status(500).json({ message: "Server error on login" });
@@ -252,7 +252,7 @@ export default function Users(app){
     });
 
     //checing post 
-    app.post('/userspost', async (req, res)=>{
+    app.post('/userspost', async (req, res) => {
         const { full_name, email, phone_number, password, gender } = req.body;
 
         if (!password) {
@@ -263,9 +263,9 @@ export default function Users(app){
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
             const insertSql = `INSERT INTO users (full_name, email, phone_number, password, gender) VALUES (?, ?, ?, ?, ?)`;
-            db.query(insertSql, [full_name, email, phone_number, hashedPassword, gender], (error, results)=>{
-                if(error) return res.status(500).json({message:"db error",error });
-                res.status(201).json({message: "User inserted successfully", results});
+            db.query(insertSql, [full_name, email, phone_number, hashedPassword, gender], (error, results) => {
+                if (error) return res.status(500).json({ message: "db error", error });
+                res.status(201).json({ message: "User inserted successfully", results });
             });
         } catch (error) {
             res.status(500).json({ message: "Server error during user creation." });
@@ -281,7 +281,7 @@ export default function Users(app){
             if (result.length === 0) return res.status(404).json({ message: "User not found" });
 
             const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-            
+
             const updateSql = "UPDATE users SET verification_code = ? WHERE email = ?";
             db.query(updateSql, [verificationCode, email], (updateErr) => {
                 if (updateErr) return res.status(500).json({ message: "Database error" });
@@ -359,7 +359,7 @@ export default function Users(app){
         }
     });
 
-   
+
 
     // Change a user's password
     app.put('/userspassword', async (req, res) => {
@@ -406,7 +406,7 @@ export default function Users(app){
         const { email, password, user_id } = req.body;
 
         if (!email || !password || !user_id) {
-             return res.status(400).json({ message: "Email, password and user_id are required" });
+            return res.status(400).json({ message: "Email, password and user_id are required" });
         }
 
         try {
@@ -454,7 +454,7 @@ export default function Users(app){
 
             let updates = [];
             let params = [];
-            
+
             if (full_name !== undefined) { updates.push('full_name = ?'); params.push(full_name); }
             if (email !== undefined) { updates.push('email = ?'); params.push(email); }
             if (phone_number !== undefined) { updates.push('phone_number = ?'); params.push(phone_number); }
@@ -490,5 +490,5 @@ export default function Users(app){
             res.status(200).json({ message: "User account deleted successfully by admin" });
         });
     });
- 
+
 }

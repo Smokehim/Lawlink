@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 const API_BASE = 'http://localhost:3002';
 
 interface ChangePasswordProps {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    user: any;
+    user: { email: string } | null;
 }
 
 const ChangePassword = ({ user }: ChangePasswordProps) => {
@@ -42,9 +41,9 @@ const ChangePassword = ({ user }: ChangePasswordProps) => {
             if (!res.ok) throw new Error(data.message || 'Password change failed');
             setStatus('Password changed successfully!');
             setFormData({ current_password: '', new_password: '', confirm_password: '' });
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            setStatus(`Error: ${error.message}`);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            setStatus(`Error: ${errorMessage}`);
         }
     };
 

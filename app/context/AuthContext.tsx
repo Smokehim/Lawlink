@@ -12,6 +12,7 @@ interface User {
   phone_number?: string;
   number?: string; // Legacy support
   gender?: string;
+  lawyer_type?: string;
   profile_picture?: string;
   province?:string;
   district?: string;
@@ -77,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     localStorage.removeItem('userToken');
     localStorage.removeItem('userData');
+    window.location.href = '/';
   };
 
   const setUserData = (userData: User) => {

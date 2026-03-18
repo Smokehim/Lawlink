@@ -9,7 +9,7 @@ const API_BASE = 'http://localhost:3002';
 
 const Profile = () => {
   const { user, logout, setUserData } = useAuth();
-  const [activeTab, setActiveTab] = useState<'info' | 'password' | 'support' | 'delete'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'password' | 'delete'>('info');
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -20,13 +20,13 @@ const Profile = () => {
     district: '',
     specialization: '',
     bio: '',
+    lawyer_type: '',
     password: ''
   });
 
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteEmail, setDeleteEmail] = useState('');
   const [status, setStatus] = useState('');
-  const [message, setMessage] = useState('');
   
   // Upload state
   const [isUploading, setIsUploading] = useState(false);
@@ -44,6 +44,7 @@ const Profile = () => {
         province: user.province || '',
         district: user.district || '',
         specialization: user.specialization || '',
+        lawyer_type: user.lawyer_type || 'lawyer',
         bio: user.bio || '',
       }));
     }
@@ -79,6 +80,7 @@ const Profile = () => {
         province: updates.province,
         district: updates.district,
         specialization: updates.specialization,
+        lawyer_type: updates.lawyer_type,
         bio: updates.bio,
       });
     } catch (error) {
@@ -93,9 +95,9 @@ const Profile = () => {
     setStatus('');
     setIsUploading(true);
     const formData = new FormData();
-    formData.append('profile_picture', file);
     formData.append('userId', user.userId.toString());
     formData.append('role', 'lawyer');
+    formData.append('profile_picture', file);
 
     try {
       const res = await fetch(`${API_BASE}/upload-profile-picture`, {
@@ -119,28 +121,6 @@ const Profile = () => {
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-    setStatus('Sending...');
-
-    try {
-      const res = await fetch(`${API_BASE}/support/contact-admin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sender_id: user.userId,
-          sender_role: 'lawyer',
-          message_text: message
-        })
-      });
-      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || 'Send failed'); }
-      setStatus('Message sent successfully!');
-      setMessage('');
-    } catch (error) {
-      setStatus(`Error: ${error}`);
-    }
-  };
 
   const handleDeleteSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -188,13 +168,6 @@ const Profile = () => {
             }`}
         >
           Change Password
-        </button>
-        <button
-          onClick={() => setActiveTab('support')}
-          className={`px-4 py-2 rounded-md font-medium transition-colors ${activeTab === 'support' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-        >
-          Support
         </button>
         <button
           onClick={() => setActiveTab('delete')}
@@ -347,6 +320,19 @@ const Profile = () => {
                 </select>
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Professional Role</label>
+                <select
+                  aria-label="Professional Role"
+                  name="lawyer_type"
+                  value={formData.lawyer_type}
+                  onChange={handleUpdateChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                >
+                  <option value="lawyer">Lawyer</option>
+                  <option value="attorney">Attorney</option>
+                </select>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
                 <textarea
                   name="bio"
@@ -404,23 +390,6 @@ const Profile = () => {
 
         {activeTab === 'password' && (<ChangePassword user={user} />)}
 
-        {activeTab === 'support' && (
-          <div className="bg-white p-6 rounded-lg shadow-md mt-6">
-            <h2 className="text-xl font-bold mb-4">Contact Support</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <textarea
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Describe your issue or question..."
-                required
-                rows={4}
-              />
-              <button type="submit" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Send Message</button>
-            </form>
-            {status && <p className="mt-2 text-sm font-medium text-gray-700">{status}</p>}
-          </div>
-        )}
 
         {activeTab === 'delete' && (
           <div className="bg-white p-6 rounded-lg shadow-md">

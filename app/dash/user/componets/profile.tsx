@@ -8,7 +8,7 @@ const API_BASE = 'http://localhost:3002';
 
 const UserProfile = () => {
     const { user, token, logout, setUserData } = useAuth();
-    const [activeTab, setActiveTab] = useState<'info' | 'password' | 'support' | 'delete'>('info');
+    const [activeTab, setActiveTab] = useState<'info' | 'password' | 'delete'>('info');
 
     // State for update form
     const [formData, setFormData] = useState({
@@ -21,7 +21,6 @@ const UserProfile = () => {
     const [deletePassword, setDeletePassword] = useState('');
     const [deleteEmail, setDeleteEmail] = useState('');
     const [status, setStatus] = useState('');
-    const [message, setMessage] = useState('');
 
     // Upload state
     const [isUploading, setIsUploading] = useState(false);
@@ -37,7 +36,7 @@ const UserProfile = () => {
             }));
         }
     }, [user]);
-    // handle support form submission
+
     const handleUpdateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -77,9 +76,9 @@ const UserProfile = () => {
         setStatus('');
         setIsUploading(true);
         const formData = new FormData();
-        formData.append('profile_picture', file);
         formData.append('userId', user.userId.toString());
         formData.append('role', 'user');
+        formData.append('profile_picture', file);
 
         try {
             const res = await fetch(`${API_BASE}/upload-profile-picture`, {
@@ -104,29 +103,6 @@ const UserProfile = () => {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!user) return;
-        setStatus('Sending...');
-
-        try {
-            const res = await fetch(`${API_BASE}/support/contact-admin`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sender_id: user.userId,
-                    sender_role: 'user',
-                    message_text: message
-                })
-            });
-            if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || 'Send failed'); }
-
-            setStatus('Message sent successfully!');
-            setMessage('');
-        } catch (error) {
-            setStatus(`Error: ${error}`);
-        }
-    };
 
     const handleDeleteSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -175,13 +151,6 @@ const UserProfile = () => {
                         }`}
                 >
                     Change Password
-                </button>
-                <button
-                    onClick={() => setActiveTab('support')}
-                    className={`px-4 py-2 rounded-md font-medium transition-colors ${activeTab === 'support' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                >
-                    Support
                 </button>
                 <button
                     onClick={() => setActiveTab('delete')}
@@ -247,23 +216,6 @@ const UserProfile = () => {
 
                 {activeTab === 'password' && (<ChangePassword user={user} token={token} />)}
 
-                {activeTab === 'support' && (
-                    <div className="bg-white p-6 rounded-lg shadow-md mt-6">
-                        <h2 className="text-xl font-bold mb-4">Contact Support</h2>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <textarea
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                placeholder="Describe your issue or question..."
-                                required
-                                rows={4}
-                            />
-                            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Send Message</button>
-                        </form>
-                        {status && <p className="mt-2 text-sm font-medium text-gray-700">{status}</p>}
-                    </div>
-                )}
 
                 {activeTab === 'delete' && (
                     <div className="bg-white p-6 rounded-lg shadow-md">

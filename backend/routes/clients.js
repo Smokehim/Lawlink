@@ -2,11 +2,11 @@ import db from '../database/database.js';
 import nodemailer from 'nodemailer';
 
 const transport = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'mwambajason2@gmail.com',
-    pass: 'feaa fycg nuwl wbgh'
-  }
+    service: 'gmail',
+    auth: {
+        user: 'mwambajason2@gmail.com',
+        pass: 'feaa fycg nuwl wbgh'
+    }
 });
 
 export default function ClientRequests(app) {
@@ -128,7 +128,7 @@ export default function ClientRequests(app) {
                             console.error("Error creating conversation on acceptance:", convErr);
                             return res.status(500).json({ message: "Error creating conversation" });
                         }
-                        
+
                         const conversation_id = convResult.insertId;
 
                         // Insert initial message if provided
@@ -154,7 +154,7 @@ export default function ClientRequests(app) {
 
     function sendNotificationEmail(request, action) {
         const subject = action === 'accepted' ? 'Request Accepted - LawLink' : 'Request Update - LawLink';
-        const text = action === 'accepted' 
+        const text = action === 'accepted'
             ? `Hello ${request.client_name},\n\nYour request to ${request.lawyer_name} has been accepted. You can now communicate via the Messaging section in your dashboard.\n\nBest regards,\nLawLink Team`
             : `Hello ${request.client_name},\n\nWe regret to inform you that your request to ${request.lawyer_name} has been rejected at this time.\n\nBest regards,\nLawLink Team`;
 

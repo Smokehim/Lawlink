@@ -27,20 +27,17 @@ const SupportForm = ({ lawyerId, authToken }: SupportFormProps) => {
                 })
             });
 
-            console.log(`Support contact response status: ${response.status}`);
-            const data = await response.json();
-            console.log('Support contact data:', data);
-
             if (!response.ok) {
+                const data = await response.json();
                 throw new Error(data.message || 'Failed to send message.');
             }
 
             setStatus('Message sent successfully!');
             setMessage('');
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error sending support message:', error);
-            setStatus(`Error: ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            setStatus(`Error: ${errorMessage}`);
         }
     };
 

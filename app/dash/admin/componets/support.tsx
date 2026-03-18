@@ -35,10 +35,8 @@ export default function Support() {
         const response = await fetch(`http://localhost:3002/support/conversations/${user.userId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        console.log(`Fetch conversations status: ${response.status}`);
         if (response.ok) {
           const data = await response.json();
-          console.log(`Received ${data.length} conversations`);
 
           // Map the backend fields (sender_name, sender_role) to frontend interface (participant_name, participant_role)
           const formatted = data.map((c: { conversation_id: number; sender_name?: string; sender_role?: 'client' | 'lawyer' | 'admin'; last_message: string; last_message_at: string }) => ({
@@ -72,10 +70,8 @@ export default function Support() {
         const response = await fetch(`http://localhost:3002/messages/${selectedConversation.conversation_id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        console.log(`Fetch messages status: ${response.status}`);
         if (response.ok) {
           const data = await response.json();
-          console.log(`Received ${data.length} messages`);
           setMessages(data);
           scrollToBottom();
         }
@@ -103,7 +99,6 @@ export default function Support() {
     const senderRole = selectedConversation.participant_role === 'client' ? 'lawyer' : 'admin';
 
     try {
-      console.log(`Sending support reply to conversation: ${selectedConversation.conversation_id}`);
       const response = await fetch('http://localhost:3002/messages', {
         method: 'POST',
         headers: {
@@ -118,9 +113,7 @@ export default function Support() {
         })
       });
 
-      console.log(`Send reply status: ${response.status}`);
       if (response.ok) {
-        console.log("Support reply successfully sent");
         const newMsg = {
           message_id: Date.now(),
           sender_role: senderRole as 'client' | 'lawyer' | 'admin',

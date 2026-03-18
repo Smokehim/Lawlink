@@ -7,16 +7,20 @@ import Clients from './componets/clients';
 import Availability from './componets/availability';
 import Profile from './componets/profile';
 import Messages from './componets/messages';
+import SupportForm from './componets/support';
+import Appointments from './componets/appointments';
 import Image from 'next/image';
 import { 
   Home as HomeIcon, 
   Users, 
   Calendar, 
+  CalendarCheck,
   UserCircle, 
   LogOut, 
   Menu, 
   X,
-  MessageSquare
+  MessageSquare,
+  LifeBuoy
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3002';
@@ -35,7 +39,7 @@ interface User {
   certificates?: string[];
 }
 
-type Section = 'home' | 'clients' | 'availability' | 'messages' | 'profile';
+type Section = 'home' | 'clients' | 'availability' | 'appointments' | 'messages' | 'profile' | 'support';
 
 // Mock client requests removed - using real data from backend
 
@@ -49,7 +53,7 @@ export default function LawyerDashboard() {
   
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push('/logins/lawyer');
+      router.push('/');
     } else if (user) {
       setProfileData({
         id: user.userId.toString(),
@@ -81,10 +85,14 @@ export default function LawyerDashboard() {
         />;
       case 'availability':
         return <Availability />;
+      case 'appointments':
+        return <Appointments />;
       case 'messages':
         return <Messages />;
       case 'profile':
         return <Profile />;
+      case 'support':
+        return <SupportForm lawyerId={user?.userId || ''} authToken={''} />;
       default:
         return null;
     }
@@ -158,6 +166,21 @@ export default function LawyerDashboard() {
 
           <button
             onClick={() => {
+              setCurrentSection('appointments');
+              setSidebarOpen(false);
+            }}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              currentSection === 'appointments'
+                ? 'bg-purple-50 text-purple-600'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <CalendarCheck className="w-5 h-5" />
+            <span>Appointments</span>
+          </button>
+
+          <button
+            onClick={() => {
               setCurrentSection('messages');
               setSidebarOpen(false);
             }}
@@ -184,6 +207,21 @@ export default function LawyerDashboard() {
           >
             <UserCircle className="w-5 h-5" />
             <span>Profile</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setCurrentSection('support');
+              setSidebarOpen(false);
+            }}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              currentSection === 'support'
+                ? 'bg-purple-50 text-purple-600'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <LifeBuoy className="w-5 h-5" />
+            <span>Support</span>
           </button>
         </nav>
 

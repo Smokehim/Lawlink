@@ -249,7 +249,39 @@ db.connect((err) => {
         )`;
         db.query(sql, (err) => {
             if (err) console.error("Error creating client_requests table:", err);
-            else console.log("Client_requests Table Created");
+            else {
+                console.log("Client_requests Table Created");
+                addLawyerAppointmentsEnabled();
+            }
+        });
+    }
+
+    function addLawyerAppointmentsEnabled() {
+        // Add appointments_enabled column if it doesn't exist yet
+        const sql = `ALTER TABLE lawyers ADD COLUMN IF NOT EXISTS appointments_enabled TINYINT(1) DEFAULT 1`;
+        db.query(sql, (err) => {
+            if (err) console.error('Error adding appointments_enabled to lawyers:', err.message);
+            else console.log('lawyers.appointments_enabled column ready');
+            createAppointmentsTable();
+        });
+    }
+
+    function createAppointmentsTable() {
+        const sql = `CREATE TABLE IF NOT EXISTS appointments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            lawyer_id INT NOT NULL,
+            appointment_date DATE NOT NULL,
+            appointment_time TIME NOT NULL,
+            reason TEXT,
+            status ENUM('pending','accepted','declined','cancelled') DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+            FOREIGN KEY (lawyer_id) REFERENCES lawyers(lawyer_id) ON DELETE CASCADE
+        )`;
+        db.query(sql, (err) => {
+            if (err) console.error('Error creating appointments table:', err);
+            else console.log('Appointments Table Created');
         });
     }
 

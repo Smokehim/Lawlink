@@ -52,7 +52,6 @@ export default function ClientRegister() {
       router.push('/serial');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred. Please try again.');
-      console.log(err)
     } finally {
       setLoading(false);
     }
@@ -62,13 +61,21 @@ export default function ClientRegister() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Back Button */}
-        <button
-          onClick={() => window.history.back()}
-          className="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </button>
+        <div className="flex justify-between items-center mb-4">
+          <button
+            onClick={() => window.history.back()}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </button>
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Go back home
+          </button>
+        </div>
 
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">

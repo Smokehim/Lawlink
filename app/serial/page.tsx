@@ -66,9 +66,14 @@ export default function VerifyCodePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <button onClick={() => router.back()} className="mb-4 flex items-center text-gray-600 hover:text-gray-900">
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back
-        </button>
+        <div className="flex justify-between items-center mb-4 text-sm">
+          <button onClick={() => router.back()} className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back
+          </button>
+          <button onClick={() => router.push('/')} className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+            Go back home
+          </button>
+        </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">

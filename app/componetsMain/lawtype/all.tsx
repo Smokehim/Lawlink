@@ -3,28 +3,28 @@ import Image from 'next/image'
 import { ArrowRight, Scale, BookOpen } from 'lucide-react'
 
 const cards = [
-    {id:1, title:"Find your business legal match", description:"Identify the exact expertise needed for your corporation.", icon: <Scale className="w-6 h-6 text-blue-500" />},
-    {id:2, title:"Selecting counsel for your case", description:"Follow strict, verified steps to make a smart choice.", icon: <BookOpen className="w-6 h-6 text-blue-500" />}
+  { id: 1, title: "Find your business legal match", description: "Identify the exact expertise needed for your corporation.", icon: <Scale className="w-6 h-6 text-blue-500" /> },
+  { id: 2, title: "Selecting counsel for your case", description: "Follow strict, verified steps to make a smart choice.", icon: <BookOpen className="w-6 h-6 text-blue-500" /> }
 ]
 
 const images = [
-    {id:1, image:"/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg", title:"Corporate Litigation", description:"Navigate complex courtroom procedures."},
-    {id:2, image:"/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg", title:"Intellectual Property", description:"Secure and protect your most valuable assets."}
+  { id: 1, image: "/images/thelawofficeofbarryejanay-business-law-10021863_1920.jpg", title: "Corporate Litigation", description: "Navigate complex courtroom procedures." },
+  { id: 2, image: "/images/real.jpg", title: "Intellectual Property", description: "Secure and protect your most valuable assets." }
 ]
 
 const All = () => {
   return (
     <div className="grid gap-8">
-      
+
       {/* Hero Banner Area */}
       <div className="relative group overflow-hidden rounded-3xl shadow-xl">
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10 pointer-events-none"></div>
-        <Image 
-          src="/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg" 
-          className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105" 
-          alt="Legal professionals discussing" 
-          width={1200} 
-          height={600} 
+        <Image
+          src="/images/9bc7178f-dbcc-4317-9fbe-6474bfcf89f1.jpg"
+          className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
+          alt="Legal professionals discussing"
+          width={1200}
+          height={600}
         />
         <div className="absolute bottom-0 left-0 p-8 md:p-12 z-20 w-full md:w-2/3">
           <span className="px-3 py-1 text-xs font-bold tracking-wider text-white bg-blue-600 rounded-full mb-4 inline-block">FEATURED</span>
@@ -47,17 +47,17 @@ const All = () => {
             <p className="text-gray-600 leading-relaxed">{items.description}</p>
           </div>
         ))}
-        
+
         {/* Image Cards */}
         {images.map((items) => (
           <div key={items.id} className="bg-white rounded-2xl p-2 shadow-lg shadow-gray-200/50 border border-gray-100 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col">
             <div className="relative overflow-hidden rounded-xl mb-4 h-48">
-              <Image 
-                src={items.image} 
-                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" 
-                alt={items.title} 
-                width={400} 
-                height={250} 
+              <Image
+                src={items.image}
+                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                alt={items.title}
+                width={400}
+                height={250}
               />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
             </div>

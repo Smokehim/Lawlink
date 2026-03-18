@@ -20,7 +20,20 @@ interface SearchsProps {
     onNavigate?: (section: 'home' | 'search' | 'messages' | 'profile') => void;
 }
 
-const mockLawyers = [
+interface Lawyer {
+    id: string;
+    name: string;
+    photo: string;
+    province: string;
+    district: string;
+    specialization: string;
+    lawyer_type: string;
+    rating: number;
+    email: string;
+    phone: string;
+}
+
+const mockLawyers: Lawyer[] = [
     {
         id: '1',
         name: 'Sarah Banda',
@@ -74,6 +87,7 @@ export default function Searchs({ onNavigate }: SearchsProps) {
         province: '',
         district: '',
         specialization: '',
+        lawyer_type: '',
     });
 
     interface ProvinceItem { province_id: number; province_name: string; }
@@ -82,11 +96,9 @@ export default function Searchs({ onNavigate }: SearchsProps) {
     const [provinces, setProvinces] = useState<ProvinceItem[]>([]);
     const [districts, setDistricts] = useState<DistrictItem[]>([]);
     const [allDistricts, setAllDistricts] = useState<DistrictItem[]>([]);
-    const [lawyers, setLawyers] = useState<typeof mockLawyers>(defaultLawyers);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [selectedLawyer, setSelectedLawyer] = useState<any>(null);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [detailLawyer, setDetailLawyer] = useState<any>(null);
+    const [lawyers, setLawyers] = useState<Lawyer[]>(defaultLawyers);
+    const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
+    const [detailLawyer, setDetailLawyer] = useState<Lawyer | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isSending, setIsSending] = useState(false);
     const { user } = useAuth();
@@ -112,14 +124,14 @@ export default function Searchs({ onNavigate }: SearchsProps) {
             .then(res => res.json())
             .then((data) => {
                 if (Array.isArray(data)) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const mapped = data.map((l: any) => ({
+                    const mapped: Lawyer[] = data.map((l: { lawyer_id: number; full_name: string; province: string; district: string; specialization: string; email: string; phone_number: string; }) => ({
                         id: l.lawyer_id.toString(),
                         name: l.full_name,
                         photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300',
                         province: l.province,
                         district: l.district,
                         specialization: l.specialization,
+                        lawyer_type: (l as any).lawyer_type || 'lawyer',
                         rating: 4.5,
                         email: l.email,
                         phone: l.phone_number
@@ -154,6 +166,7 @@ export default function Searchs({ onNavigate }: SearchsProps) {
         if (filters.province && lawyer.province !== filters.province) return false;
         if (filters.district && lawyer.district !== filters.district) return false;
         if (filters.specialization && lawyer.specialization !== filters.specialization) return false;
+        if (filters.lawyer_type && lawyer.lawyer_type !== filters.lawyer_type) return false;
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
             if (!lawyer.name.toLowerCase().includes(q) && !lawyer.specialization.toLowerCase().includes(q)) return false;
@@ -227,7 +240,7 @@ export default function Searchs({ onNavigate }: SearchsProps) {
             </div>
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Lawyers</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Province</label>
                         <select
@@ -271,6 +284,19 @@ export default function Searchs({ onNavigate }: SearchsProps) {
                             <option value="Property Law">Property Law</option>
                         </select>
                     </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Professional Role</label>
+                        <select
+                            aria-label="Role filter"
+                            value={filters.lawyer_type}
+                            onChange={(e) => setFilters({ ...filters, lawyer_type: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        >
+                            <option value="">All Roles</option>
+                            <option value="lawyer">Lawyer</option>
+                            <option value="attorney">Attorney</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -304,7 +330,7 @@ export default function Searchs({ onNavigate }: SearchsProps) {
                                 </div>
                                 <div className="flex items-center text-sm text-blue-600 font-medium mb-3">
                                     <Briefcase className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
-                                    <span>{lawyer.specialization}</span>
+                                    <span>{lawyer.specialization} • <span className="capitalize">{lawyer.lawyer_type}</span></span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
@@ -361,7 +387,7 @@ export default function Searchs({ onNavigate }: SearchsProps) {
                         </div>
                         <div className="p-6">
                             <h3 className="text-2xl font-bold text-gray-900 mb-0.5">{detailLawyer.name}</h3>
-                            <p className="text-blue-600 font-semibold text-sm mb-4">{detailLawyer.specialization}</p>
+                            <p className="text-blue-600 font-semibold text-sm mb-4 capitalize">{detailLawyer.lawyer_type} • {detailLawyer.specialization}</p>
 
                             <div className="space-y-2.5 mb-5">
                                 <div className="flex items-center text-gray-600 text-sm">
@@ -414,7 +440,7 @@ export default function Searchs({ onNavigate }: SearchsProps) {
                         <div className="flex items-start justify-between mb-1">
                             <div>
                                 <h3 className="text-xl font-bold text-gray-900">Request — {selectedLawyer.name}</h3>
-                                <p className="text-blue-600 text-sm font-medium">{selectedLawyer.specialization}</p>
+                                <p className="text-blue-600 text-sm font-medium capitalize">{selectedLawyer.lawyer_type} • {selectedLawyer.specialization}</p>
                             </div>
                             <button
                                 onClick={() => setSelectedLawyer(null)}

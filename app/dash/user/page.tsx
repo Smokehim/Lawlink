@@ -7,6 +7,7 @@ import Profile from './componets/profile';
 import Image from 'next/image';
 import Searchs from './componets/search';
 import SupportForm from './componets/support';
+import UserAppointments from './componets/appointments';
 import { useAuth } from '@/app/context/AuthContext';
 import {
   Home,
@@ -16,12 +17,13 @@ import {
   LogOut,
   Menu,
   X,
-  LifeBuoy
+  LifeBuoy,
+  CalendarCheck
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3002';
 
-type Section = 'home' | 'search' | 'messages' | 'profile' | 'support';
+type Section = 'home' | 'search' | 'messages' | 'profile' | 'support' | 'appointments';
 
 
 
@@ -34,7 +36,7 @@ export default function ClientDashboard() {
   useEffect(() => {
     // Redirect if not authenticated
     if (!isLoading && !user) {
-      router.push('/logins/user');
+      router.push('/');
     }
   }, [user, isLoading, router]);
   
@@ -56,6 +58,8 @@ export default function ClientDashboard() {
         return <Profile />;
       case 'support':
         return <SupportForm />;
+      case 'appointments':
+        return <UserAppointments />;
       default:
         return null;
     }
@@ -151,6 +155,21 @@ export default function ClientDashboard() {
           >
             <LifeBuoy className="w-5 h-5" />
             <span>Support</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setCurrentSection('appointments');
+              setSidebarOpen(false);
+            }}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              currentSection === 'appointments'
+                ? 'bg-blue-50 text-blue-600'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <CalendarCheck className="w-5 h-5" />
+            <span>Appointments</span>
           </button>
         </nav>
 
