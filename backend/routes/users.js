@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { createNotification } from '../utils/notificationHelper.js';
 
 // Ensure upload directory exists
 const uploadDir = path.join(process.cwd(), 'uploads/profile_pictures');
@@ -170,6 +171,16 @@ export default function Users(app) {
                     { expiresIn: '24h' }
                 );
 
+                createNotification(
+                    user_id,
+                    'client',
+                    'SYSTEM',
+                    `Welcome to LawLink, ${pendingUser.full_name}! Your account is now active.`,
+                    pendingUser.email,
+                    'Welcome to LawLink',
+                    `<h3>Welcome, ${pendingUser.full_name}!</h3><p>Your client account is verified and active on LawLink.</p>`
+                );
+
                 res.status(200).json({
                     message: "Email verified and user registered successfully",
                     token,
@@ -240,6 +251,16 @@ export default function Users(app) {
                     { userId: user.user_id, email: user.email },
                     JWT_SECRET,
                     { expiresIn: '24h' }
+                );
+
+                createNotification(
+                    user.user_id,
+                    'client',
+                    'SYSTEM',
+                    `Welcome back to LawLink, ${user.full_name}!`,
+                    user.email,
+                    'Login Alert: Welcome back to LawLink',
+                    `<p>Hello ${user.full_name},</p><p>You have successfully logged into your LawLink account.</p>`
                 );
 
                 res.status(200).json({ message: "Login successful", token: token, user: { userId: user.user_id, email: user.email, fullName: user.full_name, profile_picture: user.profile_picture, serialCode: user.serial_code, serialCodeExpiresAt: user.serial_code_expires_at } });

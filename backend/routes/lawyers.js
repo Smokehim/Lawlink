@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { createNotification } from '../utils/notificationHelper.js';
 
 // Ensure upload directory exists
 const uploadDir = path.join(process.cwd(), 'uploads/lawyer_docs');
@@ -154,6 +155,16 @@ export default function Lawyerss(app) {
                         { expiresIn: '24h' }
                     );
 
+                    createNotification(
+                        lawyer_id,
+                        'lawyer',
+                        'SYSTEM',
+                        `Welcome to LawLink, ${lawyer.full_name}! Your account is verified and pending admin approval.`,
+                        lawyer.email,
+                        'Welcome to LawLink',
+                        `<h3>Welcome, ${lawyer.full_name}!</h3><p>Your lawyer account is verified and active on LawLink.</p>`
+                    );
+
                     res.status(200).json({
                         message: "Lawyer verified and registered successfully",
                         token,
@@ -239,6 +250,16 @@ export default function Lawyerss(app) {
                     { userId: lawyer.lawyer_id, email: lawyer.email, role: 'lawyer' },
                     JWT_SECRET,
                     { expiresIn: '24h' }
+                );
+
+                createNotification(
+                    lawyer.lawyer_id,
+                    'lawyer',
+                    'SYSTEM',
+                    `Welcome back to LawLink, ${lawyer.full_name}!`,
+                    lawyer.email,
+                    'Login Alert: Welcome back to LawLink',
+                    `<p>Hello ${lawyer.full_name},</p><p>You have successfully logged into your LawLink account.</p>`
                 );
 
                 res.status(200).json({
@@ -453,6 +474,43 @@ export default function Lawyerss(app) {
         db.query(sql, [status, lawyer_id], (err, result) => {
             if (err) return res.status(500).json({ message: "Database error", error: err.message });
             if (result.affectedRows === 0) return res.status(404).json({ message: "Lawyer not found" });
+
+            // Notify Lawyer & Admin
+            db.query("SELECT full_name, email FROM lawyers WHERE lawyer_id = ?", [lawyer_id], (err2, lawyers) => {
+                if (!err2 && lawyers.length > 0) {
+                    const lawyer = lawyers[0];
+                    const action = status === 'verified' ? 'approved and activated' : 'rejected';
+                    
+                    // Notify the lawyer
+                    createNotification(
+                        lawyer_id,
+                        'lawyer',
+                        'SYSTEM',
+                        `Your LawLink account has been ${action} by an Administrator.`,
+                        lawyer.email,
+                        `LawLink Account ${status === 'verified' ? 'Approved' : 'Rejected'}`,
+                        `<p>Hello ${lawyer.full_name},</p><p>Your lawyer account has been ${action} by our administration team.</p>`
+                    );
+                    
+                    // Notify all admins
+                    db.query("SELECT admin_id, email, full_name FROM admins", (err3, admins) => {
+                        if (!err3) {
+                            admins.forEach(admin => {
+                                createNotification(
+                                    admin.admin_id,
+                                    'admin',
+                                    'SYSTEM',
+                                    `Lawyer ${lawyer.full_name} has been ${action}.`,
+                                    admin.email,
+                                    `Lawyer Account ${status === 'verified' ? 'Approved' : 'Rejected'}`,
+                                    `<p>Hello ${admin.full_name},</p><p>You have successfully ${action} ${lawyer.full_name}'s account.</p>`
+                                );
+                            });
+                        }
+                    });
+                }
+            });
+
             res.status(200).json({ message: `Lawyer status updated to ${status}` });
         });
     });

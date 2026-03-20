@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import { createNotification } from '../utils/notificationHelper.js';
 
 const JWT_SECRET = 'your-super-secret-key-for-jwt';
 
@@ -122,6 +123,16 @@ export default function Admins(app) {
                         { expiresIn: '24h' }
                     );
 
+                    createNotification(
+                        admin_id,
+                        'admin',
+                        'SYSTEM',
+                        `Welcome to LawLink, ${admin.full_name}! Your admin account is now active.`,
+                        admin.email,
+                        'Welcome to LawLink Admin',
+                        `<h3>Welcome, ${admin.full_name}!</h3><p>Your admin account is verified and active on LawLink.</p>`
+                    );
+
                     res.status(200).json({
                         message: "Admin verified and registered successfully",
                         token,
@@ -179,6 +190,16 @@ export default function Admins(app) {
                     { adminId: admin.admin_id, email: admin.email },
                     JWT_SECRET,
                     { expiresIn: '24h' }
+                );
+
+                createNotification(
+                    admin.admin_id,
+                    'admin',
+                    'SYSTEM',
+                    `Welcome back to LawLink Admin Portal, ${admin.full_name}!`,
+                    admin.email,
+                    'Login Alert: Welcome back to LawLink Admin',
+                    `<p>Hello ${admin.full_name},</p><p>You have successfully logged into the LawLink Admin Portal.</p>`
                 );
 
                 res.status(200).json({
