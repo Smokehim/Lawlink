@@ -9,6 +9,7 @@ import Profile from './componets/profile';
 import Messages from './componets/messages';
 import SupportForm from './componets/support';
 import Appointments from './componets/appointments';
+import NotificationBell from '@/app/components/NotificationBell';
 import Image from 'next/image';
 import { 
   Home as HomeIcon, 
@@ -248,22 +249,25 @@ export default function LawyerDashboard() {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">{user?.fullName || 'Lawyer'}</span>
-              <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-purple-600 relative">
-                {user?.profile_picture ? (
-                  <Image 
-                    src={`${API_BASE}${user.profile_picture}`} 
-                    alt="Profile" 
-                    fill 
-                    className="object-cover"
-                    unoptimized
-                  />
-                ) : (
-                  <span className="text-white font-semibold">
-                    {user?.fullName?.charAt(0).toUpperCase() || 'L'}
-                  </span>
-                )}
+            <div className="flex items-center space-x-6">
+              <NotificationBell role="lawyer" />
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-700 font-medium hidden sm:block">{user?.fullName || 'Lawyer'}</span>
+                <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-purple-600 relative shadow-sm">
+                  {user?.profile_picture ? (
+                    <Image 
+                      src={`${API_BASE}${user.profile_picture}`} 
+                      alt="Profile" 
+                      fill 
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <span className="text-white font-semibold">
+                      {user?.fullName?.charAt(0).toUpperCase() || 'L'}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>

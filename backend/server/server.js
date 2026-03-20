@@ -17,6 +17,7 @@ import Availability from '../routes/availability.js';
 import ClientRequests from '../routes/clients.js';
 import Uploads from '../routes/upload.js';
 import Appointments from '../routes/appointments.js';
+import Notifications from '../routes/notifications.js';
 
 const port = 3002;
 
@@ -35,6 +36,7 @@ Availability(app);
 ClientRequests(app);
 Uploads(app);
 Appointments(app);
+Notifications(app);
 app.listen(port, ()=>{
     console.log(`server is running on port ${port}`);
 });

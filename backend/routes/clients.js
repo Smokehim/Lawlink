@@ -1,13 +1,5 @@
 import db from '../database/database.js';
-import nodemailer from 'nodemailer';
-
-const transport = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'mwambajason2@gmail.com',
-        pass: 'feaa fycg nuwl wbgh'
-    }
-});
+import { createNotification } from '../utils/notificationHelper.js';
 
 export default function ClientRequests(app) {
     // 1. Client sends a request to a lawyer
@@ -50,6 +42,21 @@ export default function ClientRequests(app) {
                     if (msgErr) {
                         console.error("Error inserting request message:", msgErr);
                     }
+                    
+                    // NEW: Notify lawyer about the new request by looking up their email
+                    const getLawyerSql = "SELECT full_name, email FROM lawyers WHERE lawyer_id = ?";
+                    db.query(getLawyerSql, [lawyer_id], (errL, resultsL) => {
+                        if (!errL && resultsL.length > 0) {
+                            const lawyer = resultsL[0];
+                            createNotification(
+                                lawyer_id, 'lawyer', 'NEW_REQUEST',
+                                `You have a new request pending your review.`,
+                                lawyer.email, 'New Client Request - LawLink',
+                                `Hello ${lawyer.full_name},\n\nYou have received a new client request on LawLink. Please log into your dashboard to review and accept/decline the request.\n\nBest regards,\nLawLink Team`
+                            );
+                        }
+                    });
+
                     res.status(201).json({
                         message: "Request sent successfully",
                         request_id,
@@ -157,20 +164,9 @@ export default function ClientRequests(app) {
         const text = action === 'accepted'
             ? `Hello ${request.client_name},\n\nYour request to ${request.lawyer_name} has been accepted. You can now communicate via the Messaging section in your dashboard.\n\nBest regards,\nLawLink Team`
             : `Hello ${request.client_name},\n\nWe regret to inform you that your request to ${request.lawyer_name} has been rejected at this time.\n\nBest regards,\nLawLink Team`;
+        
+        const short_msg = action === 'accepted' ? `Your request to ${request.lawyer_name} was accepted` : `Your request to ${request.lawyer_name} was rejected`;
 
-        const mailOptions = {
-            from: 'mwambajason2@gmail.com',
-            to: request.client_email,
-            subject: subject,
-            text: text
-        };
-
-        transport.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.error("Error sending notification email:", error);
-            } else {
-                console.log("Notification email sent: " + info.response);
-            }
-        });
+        createNotification(request.client_id, 'client', 'REQUEST_UPDATE', short_msg, request.client_email, subject, text);
     }
 }

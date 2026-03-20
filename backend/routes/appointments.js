@@ -1,4 +1,5 @@
 import db from '../database/database.js';
+import { createNotification } from '../utils/notificationHelper.js';
 
 export default function AppointmentRoutes(app) {
 
@@ -60,6 +61,20 @@ export default function AppointmentRoutes(app) {
             `;
             db.query(insertSql, [user_id, lawyer_id, appointment_date, appointment_time, reason || null], (insertErr, result) => {
                 if (insertErr) return res.status(500).json({ message: 'Database error', error: insertErr.message });
+                
+                // Notify Lawyer
+                const getLawyerSql = "SELECT full_name, email FROM lawyers WHERE lawyer_id = ?";
+                db.query(getLawyerSql, [lawyer_id], (errL, resL) => {
+                    if (!errL && resL.length > 0) {
+                        createNotification(
+                            lawyer_id, 'lawyer', 'NEW_APPOINTMENT',
+                            `You have a new appointment request for ${appointment_date} at ${appointment_time}.`,
+                            resL[0].email, 'New Appointment Request - LawLink',
+                            `Hello ${resL[0].full_name},\n\nYou have received a new appointment request for date: ${appointment_date} at ${appointment_time}. Check your dashboard.`
+                        );
+                    }
+                });
+
                 res.status(201).json({ message: 'Appointment booked successfully', id: result.insertId });
             });
         });
@@ -78,6 +93,27 @@ export default function AppointmentRoutes(app) {
         db.query(sql, [status, id], (err, result) => {
             if (err) return res.status(500).json({ message: 'Database error', error: err.message });
             if (result.affectedRows === 0) return res.status(404).json({ message: 'Appointment not found' });
+
+            // Notify Client
+            const getApptSql = `
+                SELECT a.*, u.email as client_email, l.full_name as lawyer_name 
+                FROM appointments a 
+                JOIN users u ON a.user_id = u.user_id 
+                JOIN lawyers l ON a.lawyer_id = l.lawyer_id 
+                WHERE a.id = ?
+            `;
+            db.query(getApptSql, [id], (errA, resA) => {
+                if (!errA && resA.length > 0) {
+                    const appt = resA[0];
+                    createNotification(
+                        appt.user_id, 'client', 'APPOINTMENT_UPDATE',
+                        `Your appointment with ${appt.lawyer_name} on ${appt.appointment_date} was ${status}.`,
+                        appt.client_email, 'Appointment Update - LawLink',
+                        `Hello,\n\nYour appointment with ${appt.lawyer_name} has been ${status}.\n\nBest regards,\nLawLink Team`
+                    );
+                }
+            });
+
             res.status(200).json({ message: `Appointment ${status}` });
         });
     });

@@ -281,7 +281,26 @@ db.connect((err) => {
         )`;
         db.query(sql, (err) => {
             if (err) console.error('Error creating appointments table:', err);
-            else console.log('Appointments Table Created');
+            else {
+                console.log('Appointments Table Created');
+                createNotificationsTable();
+            }
+        });
+    }
+
+    function createNotificationsTable() {
+        const sql = `CREATE TABLE IF NOT EXISTS notifications (
+            notification_id INT AUTO_INCREMENT PRIMARY KEY,
+            recipient_id INT NOT NULL,
+            recipient_role ENUM('client', 'lawyer', 'admin') NOT NULL,
+            type VARCHAR(50) NOT NULL,
+            message TEXT NOT NULL,
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+        db.query(sql, (err) => {
+            if (err) console.error('Error creating notifications table:', err);
+            else console.log('Notifications Table Created');
         });
     }
 
