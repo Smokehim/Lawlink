@@ -73,7 +73,7 @@ export default function Lawyerss(app) {
                 console.log(`Verification code for new lawyer ${email} is: ${verificationCode}`);
 
                 // Store lawyer data in database with pending status
-                const insertSql = `INSERT INTO lawyers (full_name, email, phone_number, password, province, district, specialization, bar_number, lawyer_type, profile_picture, license_file, verification_status, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unverified', ?)`;
+                const insertSql = `INSERT INTO lawyers (full_name, email, phone_number, password, province, district, specialization, bar_number, lawyer_type, profile_picture, license_file, verification_status, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`;
                 
                 db.query(insertSql, [full_name, email, phone_number, hashedPassword, province, district, specialization, bar_number, lawyer_type, profilePicture, licenseFile, verificationCode], (insertErr, insertResult) => {
                     if (insertErr) return res.status(500).json({ message: "Database error", error: insertErr.message });
@@ -177,7 +177,7 @@ export default function Lawyerss(app) {
     // testing post
     app.post('/post', (req, res) => {
         const { full_name, email, phone_number, password, province, district, specialization, bar_number } = req.body;
-        const insertSql = `INSERT INTO lawyers (full_name, email, phone_number, password, province, district, specialization, bar_number, verification_status, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'unverified', ?)`;
+        const insertSql = `INSERT INTO lawyers (full_name, email, phone_number, password, province, district, specialization, bar_number, verification_status, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`;
         db.query(insertSql, [full_name, email, phone_number, password, province, district, specialization, bar_number, null], (error, results) => {
             if (error) return res.status(500).json({ message: "db error", error: error.message });
             console.log("here is result for inserted", results);

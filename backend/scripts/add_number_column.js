@@ -22,5 +22,3 @@ db.connect((err) => {
         db.end();
     });
 });
-
-

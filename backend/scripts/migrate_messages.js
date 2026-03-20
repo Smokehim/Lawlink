@@ -4,11 +4,11 @@ const steps = [
     // 1. Add new columns
     "ALTER TABLE messages ADD COLUMN conversation_id INT NULL AFTER message_id",
     "ALTER TABLE messages ADD COLUMN sender_role ENUM('client', 'lawyer', 'admin') NULL AFTER sender_id",
-    
+
     // 2. Map old sender_type to new sender_role
     "UPDATE messages SET sender_role = 'client' WHERE sender_type = 'user'",
     "UPDATE messages SET sender_role = 'lawyer' WHERE sender_type = 'lawyer'",
-    
+
     // 3. Populate conversation_id for existing messages
     // Case 1: Sender is user, receiver is lawyer
     `UPDATE messages m
@@ -17,7 +17,7 @@ const steps = [
                          AND c.lawyer_id = m.receiver_id
      SET m.conversation_id = c.conversation_id
      WHERE m.sender_type = 'user' AND m.receiver_type = 'lawyer' AND m.conversation_id IS NULL`,
-     
+
     // Case 2: Sender is lawyer, receiver is user
     `UPDATE messages m
      JOIN conversations c ON c.participant_id = m.receiver_id 
