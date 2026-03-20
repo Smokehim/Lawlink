@@ -57,7 +57,8 @@ export default function LawyerDashboard() {
       router.push('/');
     } else if (user) {
       setProfileData({
-        id: user.userId.toString(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        id: String(user.userId || (user as any).lawyerId || (user as any).id || ''),
         email: user.email,
         fullName: user.fullName,
         phone: user.phone || user.phone_number || user.number || '',
