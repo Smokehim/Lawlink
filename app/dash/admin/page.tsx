@@ -289,7 +289,7 @@ export default function AdminDashboard() {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-6 lg:ml-auto">
               <NotificationBell role="admin" />
               <div className="flex items-center space-x-3">
                 <span className="text-gray-700 font-medium hidden sm:block">{user?.fullName || 'Admin'}</span>
