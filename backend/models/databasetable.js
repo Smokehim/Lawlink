@@ -258,10 +258,15 @@ db.connect((err) => {
 
     function addLawyerAppointmentsEnabled() {
         // Add appointments_enabled column if it doesn't exist yet
-        const sql = `ALTER TABLE lawyers ADD COLUMN IF NOT EXISTS appointments_enabled TINYINT(1) DEFAULT 1`;
+        const sql = `ALTER TABLE lawyers ADD COLUMN appointments_enabled TINYINT(1) DEFAULT 1`;
         db.query(sql, (err) => {
-            if (err) console.error('Error adding appointments_enabled to lawyers:', err.message);
-            else console.log('lawyers.appointments_enabled column ready');
+            if (err && err.code !== 'ER_DUP_FIELDNAME') {
+                console.error('Error adding appointments_enabled to lawyers:', err.message);
+            } else if (!err) {
+                console.log('lawyers.appointments_enabled column added successfully');
+            } else {
+                console.log('lawyers.appointments_enabled column already exists (ready)');
+            }
             createAppointmentsTable();
         });
     }
