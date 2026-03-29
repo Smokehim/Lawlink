@@ -46,7 +46,7 @@ export default function Availability() {
     const lawyer_id = user.userId;
 
     if (unavailableDates.includes(newUnavailableDate)) {
-      alert('This date is already marked as unavailable.');
+      console.warn('Date already marked as unavailable:', newUnavailableDate);
       return;
     }
 
@@ -67,8 +67,6 @@ export default function Availability() {
       setNewUnavailableDate('');
     } catch (error: unknown) {
       console.error("Error adding unavailable date:", error);
-      const message = error instanceof Error ? error.message : "Failed to add unavailable date. Please try again.";
-      alert(message);
     }
   };
 
@@ -89,8 +87,6 @@ export default function Availability() {
       setUnavailableDates(unavailableDates.filter(d => d !== date));
     } catch (error: unknown) {
       console.error("Error removing unavailable date:", error);
-      const message = error instanceof Error ? error.message : "Failed to remove date. Please try again.";
-      alert(message);
     }
   };
 
@@ -98,7 +94,8 @@ export default function Availability() {
     if (!user?.userId || !token) return;
     const lawyer_id = user.userId;
 
-    if (!confirm("Are you sure you want to clear all unavailable dates?")) return;
+    // Admin requested no alerts/confirms
+    // if (!confirm("Are you sure you want to clear all unavailable dates?")) return;
 
     try {
       const res = await fetch(`${API_BASE}/availability/clear-all`, {
@@ -113,8 +110,6 @@ export default function Availability() {
       setUnavailableDates([]);
     } catch (error: unknown) {
       console.error("Error clearing unavailable dates:", error);
-      const message = error instanceof Error ? error.message : "Failed to clear dates. Please try again.";
-      alert(message);
     }
   };
 

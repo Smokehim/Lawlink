@@ -153,6 +153,38 @@ export default function Admins(app) {
             return res.status(400).json({ message: "Verification failed" });
         }
     });
+    app.post('/resend_verification_admin', (req, res) => {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: "Email is required" });
+
+        const sql = "SELECT * FROM admins WHERE email = ? AND verification_status = 'pending'";
+        db.query(sql, [email], (err, result) => {
+            if (err) return res.status(500).json({ message: "Database error" });
+            if (result.length === 0) return res.status(404).json({ message: "Admin not found or already verified" });
+
+            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const updateSql = "UPDATE admins SET verification_code = ? WHERE email = ?";
+            
+            db.query(updateSql, [verificationCode, email], (updateErr) => {
+                if (updateErr) return res.status(500).json({ message: "Database error" });
+
+                let mailOptions = {
+                    from: 'mwambajason2@gmail.com',
+                    to: email,
+                    subject: 'New verification code for LawLink Admin registration',
+                    text: `Your new verification code is: ${verificationCode}`
+                };
+
+                transport.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.log(error);
+                        return res.status(500).json({ message: "Error sending email" });
+                    }
+                    res.status(200).json({ message: "New verification code sent to your email" });
+                });
+            });
+        });
+    });
 
     app.post('/login_admin', async (req, res) => {
         try {

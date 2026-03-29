@@ -9,7 +9,9 @@ import {
     Send,
     X,
     ChevronRight,
-    Briefcase
+    Briefcase,
+    MessageSquare,
+    CalendarCheck
 } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -17,7 +19,7 @@ import { useRouter } from 'next/navigation';
 const API_BASE = 'http://localhost:3002';
 
 interface SearchsProps {
-    onNavigate?: (section: 'home' | 'search' | 'messages' | 'profile') => void;
+    onNavigate?: (section: 'home' | 'search' | 'messages' | 'profile' | 'appointments') => void;
 }
 
 interface Lawyer {
@@ -105,6 +107,7 @@ export default function Searchs({ onNavigate }: SearchsProps) {
     const [detailLawyer, setDetailLawyer] = useState<Lawyer | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isSending, setIsSending] = useState(false);
+    const [requestStatuses, setRequestStatuses] = useState<Record<string, string>>({});
     const { user } = useAuth();
     const router = useRouter();
 
@@ -150,6 +153,20 @@ export default function Searchs({ onNavigate }: SearchsProps) {
             });
     }, []);
 
+    // Fetch request statuses once user and lawyers are both available
+    useEffect(() => {
+        if (user && lawyers.length > 0) {
+            lawyers.forEach(lawyer => {
+                fetch(`${API_BASE}/client-requests/status/${user.userId}/${lawyer.id}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setRequestStatuses(prev => ({ ...prev, [lawyer.id]: data.status }));
+                    })
+                    .catch(err => console.error(`Error fetching status for lawyer ${lawyer.id}:`, err));
+            });
+        }
+    }, [user, lawyers]);
+
     // When province filter changes, filter districts to show only relevant ones
     useEffect(() => {
         if (filters.province) {
@@ -181,33 +198,42 @@ export default function Searchs({ onNavigate }: SearchsProps) {
 
     const handleSendRequest = async (details: string) => {
         if (!user) {
-            alert('Please log in to contact a lawyer.');
+            console.warn('User not logged in. Redirecting to login.');
             router.push('/logins/user');
             return;
         }
         if (!selectedLawyer) return;
 
         setIsSending(true);
+
         try {
+            const client_id = user?.userId || (user as any)?.user_id || (user as any)?.id;
+            const lawyer_id = parseInt(selectedLawyer?.id || "");
+
+            if (!client_id || isNaN(lawyer_id)) {
+                console.error('Session or data error. client_id:', client_id, 'lawyer_id:', lawyer_id);
+                if (!client_id) router.push('/logins/user');
+                setIsSending(false);
+                return;
+            }
+            
             const res = await fetch(`${API_BASE}/client-requests`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    client_id: user.userId,
-                    lawyer_id: parseInt(selectedLawyer.id),
+                    client_id: client_id,
+                    lawyer_id: lawyer_id,
                     request_details: details
                 })
             });
             if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || 'Request failed'); }
+            
+            // Update local state instead of redirecting immediately
+            setRequestStatuses(prev => ({ ...prev, [selectedLawyer.id]: 'pending' }));
             setSelectedLawyer(null);
             setDetailLawyer(null);
-            // Navigate to messages so the client can see the request thread immediately
-            if (onNavigate) {
-                onNavigate('messages');
-            }
         } catch (error) {
             console.error('Error sending request:', error);
-            alert('Failed to send request. Please try again.');
         } finally {
             setIsSending(false);
         }
@@ -349,16 +375,49 @@ export default function Searchs({ onNavigate }: SearchsProps) {
                             </div>
                         </button>
 
-                        {/* Send Request button — always visible at bottom of card */}
+                        {/* Action buttons based on status */}
                         <div className="px-5 pb-5 mt-auto">
-                            <button
-                                onClick={() => setSelectedLawyer(lawyer)}
-                                className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl transition-colors font-semibold shadow-sm shadow-blue-100"
-                                title={`Send a request to ${lawyer.name}`}
-                            >
-                                <Send className="w-4 h-4" />
-                                <span>Send Request</span>
-                            </button>
+                            {!requestStatuses[lawyer.id] || requestStatuses[lawyer.id] === 'none' ? (
+                                <button
+                                    onClick={() => setSelectedLawyer(lawyer)}
+                                    className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl transition-colors font-semibold shadow-sm shadow-blue-100"
+                                    title={`Send a request to ${lawyer.name}`}
+                                >
+                                    <Send className="w-4 h-4" />
+                                    <span>Send Request</span>
+                                </button>
+                            ) : requestStatuses[lawyer.id] === 'pending' ? (
+                                <button
+                                    disabled
+                                    className="w-full flex items-center justify-center space-x-2 bg-gray-100 text-gray-400 py-2.5 rounded-xl font-semibold cursor-not-allowed border border-gray-200"
+                                >
+                                    <span>Request Pending</span>
+                                </button>
+                            ) : requestStatuses[lawyer.id] === 'accepted' ? (
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={() => onNavigate && onNavigate('messages')}
+                                        className="flex items-center justify-center space-x-1 bg-green-50 text-green-700 hover:bg-green-100 py-2.5 rounded-xl transition-colors font-semibold border border-green-200"
+                                    >
+                                        <MessageSquare className="w-3.5 h-3.5" />
+                                        <span className="text-xs">Message</span>
+                                    </button>
+                                    <button
+                                        onClick={() => onNavigate && onNavigate('appointments')}
+                                        className="flex items-center justify-center space-x-1 bg-blue-50 text-blue-700 hover:bg-blue-100 py-2.5 rounded-xl transition-colors font-semibold border border-blue-200"
+                                    >
+                                        <CalendarCheck className="w-3.5 h-3.5" />
+                                        <span className="text-xs">Book</span>
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    disabled
+                                    className="w-full flex items-center justify-center space-x-2 bg-red-50 text-red-400 py-2.5 rounded-xl font-semibold border border-red-100"
+                                >
+                                    <span>Request Rejected</span>
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}
@@ -425,13 +484,29 @@ export default function Searchs({ onNavigate }: SearchsProps) {
                                 >
                                     Close
                                 </button>
-                                <button
-                                    onClick={() => setSelectedLawyer(detailLawyer)}
-                                    className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors shadow-sm"
-                                >
-                                    <Send className="w-4 h-4" />
-                                    <span>Send Request</span>
-                                </button>
+                                {(!requestStatuses[detailLawyer.id] || requestStatuses[detailLawyer.id] === 'none') && (
+                                    <button
+                                        onClick={() => setSelectedLawyer(detailLawyer)}
+                                        className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors shadow-sm"
+                                    >
+                                        <Send className="w-4 h-4" />
+                                        <span>Send Request</span>
+                                    </button>
+                                )}
+                                {requestStatuses[detailLawyer.id] === 'pending' && (
+                                    <div className="flex-1 flex items-center justify-center py-2.5 bg-gray-50 text-gray-500 rounded-xl font-medium border border-gray-100">
+                                        Pending...
+                                    </div>
+                                )}
+                                {requestStatuses[detailLawyer.id] === 'accepted' && (
+                                    <button
+                                        onClick={() => onNavigate && onNavigate('messages')}
+                                        className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-colors shadow-sm"
+                                    >
+                                        <MessageSquare className="w-4 h-4" />
+                                        <span>Message</span>
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

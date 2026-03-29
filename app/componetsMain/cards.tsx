@@ -11,7 +11,7 @@ const Cards = ({ embedded = false }: Props) => {
 
   const cards: CardZ[] = [
     { id: 1, title: "What is an attorney?", description: "Attorneys are licensed to present clients in the court and provides legal counsel for complex business matters" },
-    { id: 2, title: "What is an lawyer?", description: "Lawyers are legally trained and can advise but may not always appear in court." },
+    { id: 2, title: "What is a lawyer?", description: "Lawyers are legally trained and can advise but may not always appear in court." },
     { id: 3, title: "Match by business case", description: "Connect with the right professional for your specific business needs." },
     { id: 4, title: "Vetted legal Professionals", description: "All experts are verified for credentials, experience, and professional standards" },
     { id: 5, title: "Business law focus?", description: "Support for contracts, compliance, and corporate legal issues" },
@@ -38,6 +38,9 @@ const Cards = ({ embedded = false }: Props) => {
             <p className="text-blue-50/80 leading-relaxed">{item.description}</p>
           </div>
         ))}
+      </div>
+      <div className="flex flex-col">
+        <div className="style"></div>
       </div>
     </div>
   )

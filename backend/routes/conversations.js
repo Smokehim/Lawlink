@@ -14,28 +14,47 @@ export default function Conversations(app) {
             return res.status(400).json({ message: 'Invalid participant_role. Must be "client" or "admin".' });
         }
 
-        // Atomically find or create a conversation using the unique key on (client_id, lawyer_id).
-        const sql = `
-            INSERT INTO conversations (participant_id, participant_role, lawyer_id) 
-            VALUES (?, ?, ?)
-            ON DUPLICATE KEY UPDATE conversation_id = LAST_INSERT_ID(conversation_id);
-        `;
-
-        db.query(sql, [participant_id, participant_role, lawyer_id], (err, result) => {
-            if (err) {
-                return res.status(500).json({ message: 'Database error', error: err.message });
-            }
-            
-            const conversation_id = result.insertId;
-            // affectedRows is 1 for a new insert, 2 for an update that changes a value.
-            const wasCreated = result.affectedRows === 1;
-            
-            res.status(wasCreated ? 201 : 200).json({ 
-                message: wasCreated ? 'Conversation created successfully' : 'Conversation already exists', 
-                conversation_id
+        // NEW: If client, verify they have an accepted request
+        if (participant_role === 'client') {
+            const checkRequestSql = "SELECT status FROM client_requests WHERE client_id = ? AND lawyer_id = ? AND status = 'accepted'";
+            db.query(checkRequestSql, [participant_id, lawyer_id], (checkErr, checkResults) => {
+                if (checkErr) return res.status(500).json({ message: 'Database error', error: checkErr.message });
+                if (checkResults.length === 0) {
+                    return res.status(403).json({ message: 'You must have an accepted access request to start a conversation with this lawyer.' });
+                }
+                // Proceed to create/get conversation
+                proceedWithConversation();
             });
-        });
+        } else {
+            // Admin can bypass
+            proceedWithConversation();
+        }
+
+        function proceedWithConversation() {
+            // Atomically find or create a conversation using the unique key on (client_id, lawyer_id).
+            const sql = `
+                INSERT INTO conversations (participant_id, participant_role, lawyer_id) 
+                VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE conversation_id = LAST_INSERT_ID(conversation_id);
+            `;
+
+            db.query(sql, [participant_id, participant_role, lawyer_id], (err, result) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Database error', error: err.message });
+                }
+                
+                const conversation_id = result.insertId;
+                // affectedRows is 1 for a new insert, 2 for an update that changes a value.
+                const wasCreated = result.affectedRows === 1;
+                
+                res.status(wasCreated ? 201 : 200).json({ 
+                    message: wasCreated ? 'Conversation created successfully' : 'Conversation already exists', 
+                    conversation_id
+                });
+            });
+        }
     });
+
 
     // Get all conversations for a specific client
     app.get('/conversations/client/:client_id', (req, res) => {
@@ -47,10 +66,12 @@ export default function Conversations(app) {
                 c.lawyer_id,
                 l.full_name AS lawyer_name,
                 l.specialization AS lawyer_specialization,
+                cr.status AS request_status,
                 (SELECT m.message_text FROM messages m WHERE m.conversation_id = c.conversation_id ORDER BY m.created_at DESC LIMIT 1) AS last_message,
                 (SELECT m.created_at FROM messages m WHERE m.conversation_id = c.conversation_id ORDER BY m.created_at DESC LIMIT 1) AS last_message_at
             FROM conversations c
             JOIN lawyers l ON c.lawyer_id = l.lawyer_id
+            LEFT JOIN client_requests cr ON c.participant_id = cr.client_id AND c.lawyer_id = cr.lawyer_id
             WHERE c.participant_id = ? AND c.participant_role = 'client'
             ORDER BY last_message_at DESC;
         `;
@@ -72,6 +93,7 @@ export default function Conversations(app) {
                 c.conversation_id,
                 c.participant_id,
                 c.participant_role,
+                cr.status AS request_status,
                 CASE
                     WHEN c.participant_role = 'client' THEN u.full_name
                     WHEN c.participant_role = 'admin' THEN a.full_name
@@ -81,6 +103,7 @@ export default function Conversations(app) {
             FROM conversations c
             LEFT JOIN users u ON c.participant_id = u.user_id AND c.participant_role = 'client'
             LEFT JOIN admins a ON c.participant_id = a.admin_id AND c.participant_role = 'admin'
+            LEFT JOIN client_requests cr ON c.participant_id = cr.client_id AND c.lawyer_id = cr.lawyer_id
             WHERE c.lawyer_id = ?
             ORDER BY last_message_at DESC;
         `;

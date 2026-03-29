@@ -12,6 +12,7 @@ interface Conversation {
   lawyer_specialization: string;
   last_message: string;
   last_message_at: string;
+  request_status?: string;
 }
 
 interface Message {
@@ -99,7 +100,6 @@ export default function Message() {
       fetchConversations();
     } catch (error) {
       console.error("Error sending message:", error);
-      alert("Failed to send message. Please try again.");
     } finally {
       setIsSending(false);
     }
@@ -161,9 +161,14 @@ export default function Message() {
                 <div className="flex-1 text-left min-w-0">
                   <div className="flex justify-between items-baseline mb-0.5">
                     <h4 className="font-bold text-gray-900 truncate text-sm">{conv.lawyer_name}</h4>
-                    {conv.last_message_at && (
-                      <span className="text-[9px] text-gray-400 font-bold uppercase">{formatTime(conv.last_message_at)}</span>
-                    )}
+                    <div className="flex flex-col items-end">
+                      {conv.last_message_at && (
+                        <span className="text-[9px] text-gray-400 font-bold uppercase">{formatTime(conv.last_message_at)}</span>
+                      )}
+                      {conv.request_status === 'pending' && (
+                        <span className="text-[8px] bg-amber-100 text-amber-700 px-1 rounded font-bold uppercase mt-0.5">Pending</span>
+                      )}
+                    </div>
                   </div>
                   <p className="text-[10px] text-blue-600 font-medium truncate mb-1">
                     {conv.lawyer_specialization}
@@ -223,22 +228,28 @@ export default function Message() {
             </div>
 
             <div className="p-4 bg-white border-t border-gray-100">
-              <form onSubmit={handleSendMessage} className="relative flex items-center">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type your message..."
-                  className="w-full pl-5 pr-14 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all"
-                />
-                <button
-                  type="submit"
-                  disabled={!newMessage.trim() || isSending}
-                  className="absolute right-2 p-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-200 transition-colors"
-                >
-                  {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                </button>
-              </form>
+              {selectedConversation.request_status === 'accepted' || (user as any)?.role === 'admin' ? (
+                <form onSubmit={handleSendMessage} className="relative flex items-center">
+                  <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type your message..."
+                    className="w-full pl-5 pr-14 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!newMessage.trim() || isSending}
+                    className="absolute right-2 p-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-200 transition-colors"
+                  >
+                    {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  </button>
+                </form>
+              ) : (
+                <div className="flex items-center justify-center p-3 bg-amber-50 rounded-xl border border-amber-100 text-amber-700 text-xs font-medium">
+                   You can send more messages once the lawyer accepts your request.
+                </div>
+              )}
             </div>
           </>
         ) : (

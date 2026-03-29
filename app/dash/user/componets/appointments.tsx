@@ -64,13 +64,14 @@ export default function UserAppointments() {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   });
 
-  // Fetch verified lawyers
+  // Fetch lawyers who have accepted a request from this client
   useEffect(() => {
-    fetch(`${API_BASE}/lawyers/verified`)
+    if (!user?.userId) return;
+    fetch(`${API_BASE}/client-requests/accepted/${user.userId}`)
       .then(r => r.json())
       .then((data: Lawyer[]) => setLawyers(data))
       .catch(console.error);
-  }, []);
+  }, [user]);
 
   // When a lawyer is selected, check if they accept appointments
   useEffect(() => {
@@ -136,7 +137,7 @@ export default function UserAppointments() {
 
   const handleCancel = async (id: number) => {
     if (!user?.userId) return;
-    if (!confirm('Cancel this appointment?')) return;
+    // if (!confirm('Cancel this appointment?')) return;
     try {
       const res = await fetch(`${API_BASE}/appointments/${id}`, {
         method: 'DELETE',

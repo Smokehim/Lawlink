@@ -85,7 +85,7 @@ export default function Clients() {
 
       setClients(clients.map(c => c.id === editing.id ? { ...c, name: editing.name, email: editing.email, phone: editing.phone } : c));
       setEditing(null);
-      alert('User updated successfully');
+      // alert('User updated successfully');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to update user');
     } finally {
@@ -94,7 +94,7 @@ export default function Clients() {
   };
 
   const handleDelete = async (clientId: string) => {
-    if (!window.confirm('Are you sure you want to delete this client?')) return;
+    // if (!window.confirm('Are you sure you want to delete this client?')) return;
 
     try {
       const response = await fetch(`http://localhost:3002/admin/users/${clientId}`, {
@@ -106,13 +106,12 @@ export default function Clients() {
 
       if (response.ok) {
         setClients(clients.filter(c => c.id !== clientId));
-        alert('Client deleted successfully');
+        // alert('Client deleted successfully');
       } else {
-        alert('Failed to delete client');
+        console.error('Failed to delete client');
       }
     } catch (error) {
-      console.error(error);
-      alert('Error deleting client');
+      console.error('Error deleting client:', error);
     }
   };
 

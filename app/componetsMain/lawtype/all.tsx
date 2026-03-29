@@ -1,6 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
-import { ArrowRight, Scale, BookOpen } from 'lucide-react'
+import { ArrowRight, Scale, BookOpen, X, Info } from 'lucide-react'
+import { useState } from 'react'
 
 const cards = [
   { id: 1, title: "Find your business legal match", description: "Identify the exact expertise needed for your corporation.", icon: <Scale className="w-6 h-6 text-blue-500" /> },
@@ -12,7 +13,13 @@ const images = [
   { id: 2, image: "/images/real.jpg", title: "Intellectual Property", description: "Secure and protect your most valuable assets." }
 ]
 
+const categoryDetails: Record<string, string> = {
+  "Corporate Litigation": "Corporate litigation involves legal disputes between businesses, such as breach of contract, partnership disputes, or shareholder issues. Our experts help you navigate these complex courtroom procedures with strategic advocacy to protect your interests and ensure business continuity.",
+  "Intellectual Property": "Intellectual property law focuses on protecting and enforcing rights to creative works, inventions, and brand identifiers. We help you secure your trademarks, patents, and copyrights to safeguard your competitive advantage and prevent unauthorized use of your assets."
+};
+
 const All = () => {
+  const [expandedId, setExpandedId] = useState<number | null>(null);
   return (
     <div className="grid gap-8">
 
@@ -50,22 +57,47 @@ const All = () => {
 
         {/* Image Cards */}
         {images.map((items) => (
-          <div key={items.id} className="bg-white rounded-2xl p-2 shadow-lg shadow-gray-200/50 border border-gray-100 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col">
-            <div className="relative overflow-hidden rounded-xl mb-4 h-48">
+          <div 
+            key={items.id} 
+            className={`bg-white rounded-3xl shadow-lg border border-gray-100 transition-all duration-300 group flex flex-col overflow-hidden ${expandedId === items.id ? 'col-span-1 md:col-span-2' : ''}`}
+          >
+            <div className={`relative overflow-hidden ${expandedId === items.id ? 'h-64' : 'h-48'}`}>
               <Image
                 src={items.image}
-                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
                 alt={items.title}
-                width={400}
-                height={250}
+                width={800}
+                height={500}
               />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div className="absolute bottom-4 left-4">
+                <h3 className="text-xl font-bold text-white">{items.title}</h3>
+              </div>
             </div>
-            <div className="px-4 pb-4 flex-1 flex flex-col">
-              <h3 className="text-lg font-bold text-gray-900 mb-1">{items.title}</h3>
-              <p className="text-gray-600 text-sm flex-1">{items.description}</p>
-              <div className="mt-4 flex items-center text-blue-600 font-medium text-sm">
-                Explore <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+            
+            <div className="p-6 flex-1 flex flex-col">
+              <p className="text-gray-600 mb-6">{items.description}</p>
+              
+              <button 
+                onClick={() => setExpandedId(expandedId === items.id ? null : items.id)}
+                className="flex items-center text-blue-600 font-bold hover:gap-3 transition-all group/btn"
+              >
+                {expandedId === items.id ? 'Show Less' : 'Explore Details'} 
+                <ArrowRight className={`ml-2 w-4 h-4 transition-transform ${expandedId === items.id ? 'rotate-90' : 'group-hover/btn:translate-x-1'}`} />
+              </button>
+
+              {/* Inline Expansion (Dropdown) */}
+              <div className={`overflow-hidden transition-all duration-500 ease-in-out ${expandedId === items.id ? 'max-h-96 mt-6 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className="pt-6 border-t border-gray-100">
+                   <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-2xl">
+                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
+                        <Info className="w-5 h-5 text-white" />
+                     </div>
+                     <p className="text-gray-700 leading-relaxed text-sm">
+                       {categoryDetails[items.title] || items.description}
+                     </p>
+                   </div>
+                </div>
               </div>
             </div>
           </div>

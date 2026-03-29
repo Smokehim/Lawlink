@@ -12,6 +12,7 @@ interface Conversation {
   participant_name: string;
   last_message: string;
   last_message_at: string;
+  request_status?: string;
 }
 
 interface Message {
@@ -103,7 +104,6 @@ export default function Messages() {
       fetchConversations(); // Update last message in sidebar
     } catch (error) {
       console.error("Error sending message:", error);
-      alert("Failed to send message. Please try again.");
     } finally {
       setIsSending(false);
     }
@@ -168,9 +168,14 @@ export default function Messages() {
                 <div className="flex-1 text-left min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
                     <h4 className="font-bold text-gray-900 truncate">{conv.participant_name}</h4>
-                    {conv.last_message_at && (
-                      <span className="text-[10px] text-gray-400 uppercase font-bold">{formatTime(conv.last_message_at)}</span>
-                    )}
+                    <div className="flex flex-col items-end">
+                      {conv.last_message_at && (
+                        <span className="text-[10px] text-gray-400 uppercase font-bold">{formatTime(conv.last_message_at)}</span>
+                      )}
+                      {conv.request_status === 'pending' && (
+                        <span className="text-[8px] bg-purple-100 text-purple-700 px-1 rounded font-bold uppercase mt-0.5">New Request</span>
+                      )}
+                    </div>
                   </div>
                   <p className="text-xs text-gray-500 truncate mb-1 italic">
                     {conv.participant_role.charAt(0).toUpperCase() + conv.participant_role.slice(1)}
@@ -202,10 +207,21 @@ export default function Messages() {
                   <div className="flex items-center text-xs text-gray-500 font-medium">
                     <span className={`w-2 h-2 rounded-full mr-2 ${selectedConversation.participant_role === 'admin' ? 'bg-amber-400' : 'bg-green-400'}`}></span>
                     {selectedConversation.participant_role.charAt(0).toUpperCase() + selectedConversation.participant_role.slice(1)}
+                    {selectedConversation.request_status === 'pending' && (
+                      <span className="ml-3 bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-tight">Pending Acceptance</span>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
+
+            {selectedConversation.request_status === 'pending' && (
+              <div className="bg-purple-50 p-3 px-6 flex items-center justify-between border-b border-purple-100">
+                <p className="text-xs text-purple-800 font-medium italic">
+                  This is a new client request. Accept it in the "Clients" section to enable the client to reply.
+                </p>
+              </div>
+            )}
 
             {/* Messages Thread */}
             <div 

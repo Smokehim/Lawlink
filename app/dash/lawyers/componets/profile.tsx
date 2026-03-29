@@ -129,7 +129,7 @@ const Profile = () => {
       setStatus('Delete Error: The entered email does not match your account email.');
       return;
     }
-    if (!window.confirm('Are you sure you want to permanently delete your account?')) return;
+    // if (!window.confirm('Are you sure you want to permanently delete your account?')) return;
 
     setStatus('Deleting account...');
     try {

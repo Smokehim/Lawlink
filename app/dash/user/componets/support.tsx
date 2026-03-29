@@ -88,7 +88,7 @@ export default function SupportForm() {
                 messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
             }, 100);
         } catch (error: unknown) {
-            alert(`Failed to send: ${(error as Error).message}`);
+            console.error(`Failed to send support message:`, error);
         } finally {
             setIsSending(false);
         }

@@ -126,7 +126,6 @@ export default function Support() {
       }
     } catch (error) {
       console.error('Failed to send message:', error);
-      alert('Failed to send message. Please try again.');
     }
   };
 

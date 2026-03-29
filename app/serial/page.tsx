@@ -13,31 +13,43 @@ type AuthUser = {
   serialCodeExpiresAt: string;
 };
 type VerifyResponse = { token: string; user: AuthUser };
-type UserType = 'user' | 'lawyer' | 'admin' | null;
+type UserType = 'user' | 'lawyer' | 'admin';
 
 export default function VerifyCodePage() {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [email, setEmail] = useState<string | null>(null);
-  const [userType, setUserType] = useState<UserType>(null);
+  const [email, setEmail] = useState('');
+  const [userType, setUserType] = useState<UserType>('user');
+  const [isManual, setIsManual] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
   const router = useRouter();
   const { login } = useAuth();
 
   useEffect(() => {
-    const userEmail = localStorage.getItem('user_email') || localStorage.getItem('lawyer_email') || localStorage.getItem('admin_email');
-    const type = localStorage.getItem('user_email') ? 'user' : localStorage.getItem('lawyer_email') ? 'lawyer' : 'admin';
+    const userEmail = localStorage.getItem('user_email');
+    const lawyerEmail = localStorage.getItem('lawyer_email');
+    const adminEmail = localStorage.getItem('admin_email');
+
     if (userEmail) {
       setEmail(userEmail);
-      setUserType(type);
+      setUserType('user');
+    } else if (lawyerEmail) {
+      setEmail(lawyerEmail);
+      setUserType('lawyer');
+    } else if (adminEmail) {
+      setEmail(adminEmail);
+      setUserType('admin');
     } else {
-      router.push('/register/user');
+      setIsManual(true);
     }
-  }, [router]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (!email) return setError('Email is required');
     if (code.length !== 6) return setError('Code must be 6 digits');
     setLoading(true);
 
@@ -63,6 +75,29 @@ export default function VerifyCodePage() {
     }
   };
 
+  const handleResendCode = async () => {
+    if (!email) return setError('Please enter your email first');
+    setResendLoading(true);
+    setResendMessage('');
+    setError('');
+
+    try {
+      const endpoint = userType === 'user' ? '/resend_verification_user' : userType === 'lawyer' ? '/resend_verification_lawyer' : '/resend_verification_admin';
+      const res = await fetch(`http://localhost:3002${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to resend code');
+      setResendMessage('A new code has been sent to your email.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to resend code');
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
@@ -79,24 +114,78 @@ export default function VerifyCodePage() {
           <div className="text-center mb-8">
             <Key className="w-12 h-12 text-green-600 mx-auto mb-2" />
             <h2 className="text-2xl font-bold text-gray-900">Verify Email</h2>
-            <p className="text-gray-600 text-sm">Enter the 6-digit code</p>
+            <p className="text-gray-600 text-sm">
+              {isManual ? 'Enter your details to verify' : `Verifying ${email}`}
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              placeholder="Enter 6-digit code"
-              maxLength={6}
-              inputMode="numeric"
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-center text-2xl font-mono tracking-widest"
-            />
+            {isManual && (
+              <>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition mb-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Account Type</label>
+                  <select
+                    value={userType}
+                    onChange={(e) => setUserType(e.target.value as UserType)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition bg-white"
+                  >
+                    <option value="user">User</option>
+                    <option value="lawyer">Lawyer</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              </>
+            )}
+            
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Verification Code</label>
+              <input
+                type="text"
+                placeholder="000000"
+                maxLength={6}
+                inputMode="numeric"
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-center text-2xl font-mono tracking-widest"
+              />
+            </div>
+
             {error && <div className="bg-red-50 text-red-700 px-3 py-2 rounded text-sm">{error}</div>}
-            <button type="submit" disabled={loading} className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50">
+            {resendMessage && <div className="bg-green-50 text-green-700 px-3 py-2 rounded text-sm">{resendMessage}</div>}
+
+            <button type="submit" disabled={loading} className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 font-semibold shadow-md transition">
               {loading ? 'Verifying...' : 'Verify Account'}
             </button>
           </form>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={handleResendCode}
+              disabled={resendLoading || !email}
+              className="text-sm text-green-600 hover:text-green-700 font-medium transition disabled:opacity-50"
+            >
+              {resendLoading ? 'Sending...' : "Didn't receive a code? Resend"}
+            </button>
+            <div className="mt-2">
+              <button
+                onClick={() => setIsManual(!isManual)}
+                className="text-xs text-gray-500 hover:text-gray-700 underline"
+              >
+                {isManual ? 'Use saved email' : 'Different email?'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

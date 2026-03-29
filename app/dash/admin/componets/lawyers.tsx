@@ -79,13 +79,13 @@ export default function Lawyers() {
 
       setLawyers(current => current.map(l => l.id === id ? { ...l, status } : l));
     } catch (error) {
-      console.error(error);
-      alert('Failed to update status');
+      console.error('Failed to update status:', error);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this lawyer?')) return;
+    // Admin requested no alerts/confirms
+    // if (!confirm('Are you sure you want to delete this lawyer?')) return;
 
     try {
       const response = await fetch(`http://localhost:3002/admin/lawyers/${id}`, {
@@ -97,8 +97,7 @@ export default function Lawyers() {
 
       setLawyers(current => current.filter(l => l.id !== id));
     } catch (error) {
-      console.error(error);
-      alert('Failed to delete lawyer');
+      console.error('Failed to delete lawyer:', error);
     }
   };
 
@@ -114,7 +113,7 @@ export default function Lawyers() {
       if (!response.ok) throw new Error('Failed to update lawyer');
       setLawyers(lawyers.map(l => l.id === editing.id ? editing : l));
       setEditing(null);
-    } catch (error) { console.error(error); alert('Failed to update lawyer'); }
+    } catch (error) { console.error('Failed to update lawyer:', error); }
     finally { setSaving(false); }
   };
 

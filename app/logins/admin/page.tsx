@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
+import Link from 'next/link';
 
 
 type AuthUser = {
@@ -39,10 +40,19 @@ export default function AdminLogin() {
       login(data.token, data.user);
       router.push('/dash/admin');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
+       if (err instanceof Error && err.message.includes('not verified')) {
+         setError('Your account is not verified yet.');
+       } else {
+         setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
+       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoToVerification = () => {
+    localStorage.setItem('admin_email', formData.email);
+    router.push('/serial');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,9 +106,26 @@ export default function AdminLogin() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition"
               />
             </div>
+            <div className="flex justify-between items-center text-sm">
+              <Link href="/serial" className="text-gray-600 hover:text-gray-800">
+                Verify Email
+              </Link>
+              <Link href="/logins/admin/forgot-password" className="text-gray-600 hover:text-gray-800">
+                Forgot Password?
+              </Link>
+            </div>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex flex-col items-center">
+                <span>{error}</span>
+                {error.includes('not verified') && (
+                  <button 
+                    type="button"
+                    onClick={handleGoToVerification}
+                    className="mt-2 text-red-800 font-bold underline hover:text-red-900"
+                  >
+                    Verify Now
+                  </button>
+                )}
               </div>
             )}
             <button

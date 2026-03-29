@@ -78,16 +78,14 @@ export default function Clients({ onRequestsUpdate, onViewMessages }: ClientsPro
       onRequestsUpdate?.(updatedRequests.filter(r => r.status === 'pending').length);
 
       if (action === 'accepted') {
-        alert('Request accepted! Your message has been sent.');
         setSelectedRequest(null);
         setInitialMessage('');
         onViewMessages();
       } else {
-        alert('Request rejected.');
+        // Just refresh if rejected (it's already handled by state update above)
       }
     } catch (error) {
       console.error(`Error ${action} request:`, error);
-      alert(`Failed to ${action} request. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }

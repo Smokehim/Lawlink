@@ -199,6 +199,34 @@ export default function Users(app) {
             return res.status(400).json({ message: "Verification failed" });
         }
     });
+    app.post('/resend_verification_user', (req, res) => {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: "Email is required" });
+
+        const pendingUser = pendingRegistrations.get(email);
+        if (!pendingUser) {
+            return res.status(404).json({ message: "No pending registration found for this email" });
+        }
+
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        pendingUser.verificationCode = verificationCode;
+        pendingUser.createdAt = Date.now(); // Reset expiration timer
+
+        let mailOptions = {
+            from: 'mwambajason2@gmail.com',
+            to: email,
+            subject: 'New verification code for LawLink registration',
+            text: `Your new verification code is: ${verificationCode}`
+        };
+
+        transport.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error);
+                return res.status(500).json({ message: "Error sending email" });
+            }
+            res.status(200).json({ message: "New verification code sent to your email" });
+        });
+    });
 
     app.get('/getUsers', (req, res) => {
         try {

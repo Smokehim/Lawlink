@@ -5,65 +5,93 @@ export default function ClientRequests(app) {
     // 1. Client sends a request to a lawyer
     app.post('/client-requests', (req, res) => {
         const { client_id, lawyer_id, request_details } = req.body;
-        console.log(`New client request from ${client_id} to ${lawyer_id}`);
 
         if (!client_id || !lawyer_id || !request_details) {
             return res.status(400).json({ message: "client_id, lawyer_id, and request_details are required" });
         }
 
-        // Step 1: Insert the client request record
-        const requestSql = "INSERT INTO client_requests (client_id, lawyer_id, request_details) VALUES (?, ?, ?)";
-        db.query(requestSql, [client_id, lawyer_id, request_details], (err, result) => {
-            if (err) {
-                console.error("Error creating client request:", err);
-                return res.status(500).json({ message: "Database error", error: err.message });
+        // Check if a request already exists
+        const checkSql = "SELECT request_id, status FROM client_requests WHERE client_id = ? AND lawyer_id = ?";
+        db.query(checkSql, [client_id, lawyer_id], (checkErr, checkResults) => {
+            if (checkErr) return res.status(500).json({ message: "Database error" });
+            if (checkResults.length > 0) {
+                return res.status(400).json({ message: "A request already exists for this lawyer", status: checkResults[0].status });
             }
 
-            const request_id = result.insertId;
-
-            // Step 2: Find or create a conversation between client and lawyer immediately
-            const convSql = `
-                INSERT INTO conversations (participant_id, participant_role, lawyer_id)
-                VALUES (?, 'client', ?)
-                ON DUPLICATE KEY UPDATE conversation_id = LAST_INSERT_ID(conversation_id)
-            `;
-            db.query(convSql, [client_id, lawyer_id], (convErr, convResult) => {
-                if (convErr) {
-                    console.error("Error creating conversation for request:", convErr);
-                    // Request was saved, still return success even if conversation fails
-                    return res.status(201).json({ message: "Request sent successfully", request_id });
+            // Step 1: Insert the client request record
+            const requestSql = "INSERT INTO client_requests (client_id, lawyer_id, request_details) VALUES (?, ?, ?)";
+            db.query(requestSql, [client_id, lawyer_id, request_details], (err, result) => {
+                if (err) {
+                    console.error("Error creating client request:", err);
+                    return res.status(500).json({ message: "Database error", error: err.message });
                 }
 
-                const conversation_id = convResult.insertId;
+                const request_id = result.insertId;
 
-                // Step 3: Insert the request details as the first message (from the client)
-                const msgSql = "INSERT INTO messages (conversation_id, sender_id, sender_role, message_text) VALUES (?, ?, 'client', ?)";
-                db.query(msgSql, [conversation_id, client_id, request_details], (msgErr) => {
-                    if (msgErr) {
-                        console.error("Error inserting request message:", msgErr);
+                // Step 2: Create/Get conversation and send initial message
+                const convSql = `
+                    INSERT INTO conversations (participant_id, participant_role, lawyer_id) 
+                    VALUES (?, 'client', ?)
+                    ON DUPLICATE KEY UPDATE conversation_id = LAST_INSERT_ID(conversation_id)
+                `;
+                db.query(convSql, [client_id, lawyer_id], (convErr, convResult) => {
+                    if (convErr) {
+                        console.error("Error automated conversation creation:", convErr);
+                        return;
                     }
                     
-                    // NEW: Notify lawyer about the new request by looking up their email
+                    // In mysql2, insertId should be the value of LAST_INSERT_ID()
+                    let conversation_id = convResult.insertId;
+                    
+                    const createMsg = (cid) => {
+                        const msgSql = "INSERT INTO messages (conversation_id, sender_id, sender_role, message_text) VALUES (?, ?, 'client', ?)";
+                        db.query(msgSql, [cid, client_id, request_details], (msgErr) => {
+                            if (msgErr) console.error("Error automated message creation:", msgErr);
+                        });
+                    };
+
+                    if (!conversation_id) {
+                        // Fallback: fetch it if insertId is 0 for some reason
+                        db.query("SELECT conversation_id FROM conversations WHERE participant_id = ? AND lawyer_id = ?", [client_id, lawyer_id], (fErr, fResults) => {
+                            if (!fErr && fResults.length > 0) {
+                                createMsg(fResults[0].conversation_id);
+                            }
+                        });
+                    } else {
+                        createMsg(conversation_id);
+                    }
+
+                    // Notify lawyer about the new request
                     const getLawyerSql = "SELECT full_name, email FROM lawyers WHERE lawyer_id = ?";
                     db.query(getLawyerSql, [lawyer_id], (errL, resultsL) => {
                         if (!errL && resultsL.length > 0) {
                             const lawyer = resultsL[0];
                             createNotification(
                                 lawyer_id, 'lawyer', 'NEW_REQUEST',
-                                `You have a new request pending your review.`,
+                                `New request from client: "${request_details.substring(0, 50)}${request_details.length > 50 ? '...' : ''}"`,
                                 lawyer.email, 'New Client Request - LawLink',
-                                `Hello ${lawyer.full_name},\n\nYou have received a new client request on LawLink. Please log into your dashboard to review and accept/decline the request.\n\nBest regards,\nLawLink Team`
+                                `Hello ${lawyer.full_name},\n\nYou have received a new client request on LawLink with the following details:\n\n"${request_details}"\n\nPlease log into your dashboard to review and accept/decline the request.\n\nBest regards,\nLawLink Team`
                             );
                         }
                     });
+                });
 
-                    res.status(201).json({
-                        message: "Request sent successfully",
-                        request_id,
-                        conversation_id
-                    });
+                res.status(201).json({
+                    message: "Request sent successfully",
+                    request_id
                 });
             });
+        });
+    });
+
+    // 1.5 Get status of a request for a specific client and lawyer
+    app.get('/client-requests/status/:client_id/:lawyer_id', (req, res) => {
+        const { client_id, lawyer_id } = req.params;
+        const sql = "SELECT status FROM client_requests WHERE client_id = ? AND lawyer_id = ?";
+        db.query(sql, [client_id, lawyer_id], (err, results) => {
+            if (err) return res.status(500).json({ message: "Database error" });
+            if (results.length === 0) return res.status(200).json({ status: 'none' });
+            res.status(200).json({ status: results[0].status });
         });
     });
 
@@ -169,4 +197,19 @@ export default function ClientRequests(app) {
 
         createNotification(request.client_id, 'client', 'REQUEST_UPDATE', short_msg, request.client_email, subject, text);
     }
+
+    // 4. Get all lawyers who have accepted a request from this client
+    app.get('/client-requests/accepted/:client_id', (req, res) => {
+        const { client_id } = req.params;
+        const sql = `
+            SELECT l.lawyer_id, l.full_name, l.specialization, l.province, l.district, l.email
+            FROM client_requests cr
+            JOIN lawyers l ON cr.lawyer_id = l.lawyer_id
+            WHERE cr.client_id = ? AND cr.status = 'accepted'
+        `;
+        db.query(sql, [client_id], (err, results) => {
+            if (err) return res.status(500).json({ message: "Database error", error: err.message });
+            res.status(200).json(results);
+        });
+    });
 }

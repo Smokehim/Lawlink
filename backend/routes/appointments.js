@@ -55,27 +55,36 @@ export default function AppointmentRoutes(app) {
                 return res.status(403).json({ message: 'This lawyer is not accepting appointments at this time' });
             }
 
-            const insertSql = `
-                INSERT INTO appointments (user_id, lawyer_id, appointment_date, appointment_time, reason, status)
-                VALUES (?, ?, ?, ?, ?, 'pending')
-            `;
-            db.query(insertSql, [user_id, lawyer_id, appointment_date, appointment_time, reason || null], (insertErr, result) => {
-                if (insertErr) return res.status(500).json({ message: 'Database error', error: insertErr.message });
-                
-                // Notify Lawyer
-                const getLawyerSql = "SELECT full_name, email FROM lawyers WHERE lawyer_id = ?";
-                db.query(getLawyerSql, [lawyer_id], (errL, resL) => {
-                    if (!errL && resL.length > 0) {
-                        createNotification(
-                            lawyer_id, 'lawyer', 'NEW_APPOINTMENT',
-                            `You have a new appointment request for ${appointment_date} at ${appointment_time}.`,
-                            resL[0].email, 'New Appointment Request - LawLink',
-                            `Hello ${resL[0].full_name},\n\nYou have received a new appointment request for date: ${appointment_date} at ${appointment_time}. Check your dashboard.`
-                        );
-                    }
-                });
+            // NEW: Check if there is an accepted request from this user to this lawyer
+            const requestSql = "SELECT status FROM client_requests WHERE client_id = ? AND lawyer_id = ?";
+            db.query(requestSql, [user_id, lawyer_id], (reqErr, reqResults) => {
+                if (reqErr) return res.status(500).json({ message: 'Database error' });
+                if (reqResults.length === 0 || reqResults[0].status !== 'accepted') {
+                    return res.status(403).json({ message: 'Meeting with this lawyer requires an accepted access request first.' });
+                }
 
-                res.status(201).json({ message: 'Appointment booked successfully', id: result.insertId });
+                const insertSql = `
+                    INSERT INTO appointments (user_id, lawyer_id, appointment_date, appointment_time, reason, status)
+                    VALUES (?, ?, ?, ?, ?, 'pending')
+                `;
+                db.query(insertSql, [user_id, lawyer_id, appointment_date, appointment_time, reason || null], (insertErr, result) => {
+                    if (insertErr) return res.status(500).json({ message: 'Database error', error: insertErr.message });
+                    
+                    // Notify Lawyer
+                    const getLawyerSql = "SELECT full_name, email FROM lawyers WHERE lawyer_id = ?";
+                    db.query(getLawyerSql, [lawyer_id], (errL, resL) => {
+                        if (!errL && resL.length > 0) {
+                            createNotification(
+                                lawyer_id, 'lawyer', 'NEW_APPOINTMENT',
+                                `You have a new appointment request for ${appointment_date} at ${appointment_time}.`,
+                                resL[0].email, 'New Appointment Request - LawLink',
+                                `Hello ${resL[0].full_name},\n\nYou have received a new appointment request for date: ${appointment_date} at ${appointment_time}. Check your dashboard.`
+                            );
+                        }
+                    });
+
+                    res.status(201).json({ message: 'Appointment booked successfully', id: result.insertId });
+                });
             });
         });
     });

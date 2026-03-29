@@ -41,10 +41,19 @@ export default function LawyerLogin() {
       router.push("/dash/lawyers"); // AuthContext/Dashboard useEffect will handle redirect
     } catch (err) {
       console.error(err);
-      setError(err instanceof Error ? err.message : 'An error occurred. Please try again.');
+      if (err instanceof Error && err.message.includes('not verified')) {
+        setError('Your account is not verified yet.');
+      } else {
+        setError(err instanceof Error ? err.message : 'An error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoToVerification = () => {
+    localStorage.setItem('lawyer_email', formData.email);
+    router.push('/serial');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +114,14 @@ export default function LawyerLogin() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
               />
             </div>
+            <div className="flex justify-between items-center text-sm">
+              <Link href="/serial" className="text-purple-600 hover:text-purple-700">
+                Verify Email
+              </Link>
+              <Link href="/logins/lawyer/forgot-password" className="text-purple-600 hover:text-purple-700">
+                Forgot Password?
+              </Link>
+            </div>
             <button
               type="submit"
               disabled={loading}
@@ -113,8 +130,17 @@ export default function LawyerLogin() {
               {loading ? 'Logging in...' : 'Login'}
             </button>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex flex-col items-center">
+                <span>{error}</span>
+                {error.includes('not verified') && (
+                  <button 
+                    type="button"
+                    onClick={handleGoToVerification}
+                    className="mt-2 text-purple-700 font-bold underline hover:text-purple-800"
+                  >
+                    Verify Now
+                  </button>
+                )}
               </div>
             )}
           </form>

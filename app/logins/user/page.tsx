@@ -44,10 +44,19 @@ export default function ClientLogin() {
       
     } catch (error) {
       console.error(error);
-      setError(error instanceof Error ? error.message : 'An error occurred. Please try again.');
+      if (error instanceof Error && error.message.includes('not verified')) {
+        setError('Your account is not verified yet.');
+      } else {
+        setError(error instanceof Error ? error.message : 'An error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoToVerification = () => {
+    localStorage.setItem('user_email', formData.email);
+    router.push('/serial');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,9 +119,9 @@ export default function ClientLogin() {
             </div>
             <div className="flex justify-between items-center">
               <a href="/serial" className="text-sm text-blue-600 hover:text-blue-700">Verify Code</a>
-              <button type="button" className="text-sm text-blue-600 hover:text-blue-700">
+              <Link href="/logins/user/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
                 Forgot Password?
-              </button>
+              </Link>
             </div>
             <button
               type="submit"
@@ -122,8 +131,17 @@ export default function ClientLogin() {
               {loading ? 'Logging in...' : 'Login'}
             </button>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex flex-col items-center">
+                 <span>{error}</span>
+                 {error.includes('not verified') && (
+                   <button 
+                     type="button"
+                     onClick={handleGoToVerification}
+                     className="mt-2 text-blue-700 font-bold underline hover:text-blue-800"
+                   >
+                     Verify Now
+                   </button>
+                 )}
               </div>
             )}
           </form>
