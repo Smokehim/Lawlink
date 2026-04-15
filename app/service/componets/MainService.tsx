@@ -1,56 +1,67 @@
 "use client";
-import React from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Scale, FileText, Landmark, Users, Home, ArrowRight } from 'lucide-react'
 
 const MainService = () => {
   const router = useRouter()
-  
+
   const handleNavigate = (path: string) => {
     router.push(path)
   }
 
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const extendedDetails: Record<number, string> = {
+    1: "Our Legal Consultation service pairs you with seasoned attorneys who deeply analyze your legal standing. We offer strategic advice covering civil rights, corporate obligations, and personal liabilities, ensuring you take the most informed next steps.",
+    2: "We meticulously review your contracts, Non-Disclosure Agreements, and complex legal paperwork to identify loopholes and risks. Our attorneys ensure your documents are legally binding and structured to protect your best interests.",
+    3: "When disputes escalate, our litigators provide aggressive and professional representation across all Zambian courts. We handle civil, criminal, and commercial cases, advocating fiercely to achieve the best possible outcome for you.",
+    4: "We guide entrepreneurs through the entire process of business formation in Zambia. From PACRA registration and tax compliance to drafting articles of association, we ensure your corporation starts on a solid legal foundation.",
+    5: "Family matters require sensitivity and discretion. We offer specialized legal support for divorce proceedings, child custody, alimony, and inheritance planning, prioritizing amicable resolutions while protecting your family's future.",
+    6: "Real estate transactions carry significant financial risk. We handle property conveyancing, title deed verification, lease agreements, and can resolve land disputes, securely transferring ownership without hidden liabilities."
+  };
+
   const services = [
-    { 
-      id: 1, 
-      title: 'Legal Consultation', 
-      description: 'Direct, expert strategy sessions with top-tier licensed attorneys.', 
+    {
+      id: 1,
+      title: 'Legal Consultation',
+      description: 'Direct, expert strategy sessions with top-tier licensed attorneys.',
       image: '/images/advogadoaguilar-right-4944550_1920.jpg',
       icon: <Scale className="w-6 h-6 text-blue-600" />
     },
-    { 
-      id: 2, 
-      title: 'Document Review', 
-      description: 'Precision analysis of contracts, NDAs, and complex legal paperwork.', 
+    {
+      id: 2,
+      title: 'Document Review',
+      description: 'Precision analysis of contracts, NDAs, and complex legal paperwork.',
       image: '/images/felix_w-book-3089857_1280.jpg',
       icon: <FileText className="w-6 h-6 text-blue-600" />
     },
-    { 
-      id: 3, 
-      title: 'Court Representation', 
-      description: 'Professional defense and litigation support in all Zambian courts.', 
+    {
+      id: 3,
+      title: 'Court Representation',
+      description: 'Professional defense and litigation support in all Zambian courts.',
       image: '/images/momagic-attorney-8850323_1280.png',
       icon: <Landmark className="w-6 h-6 text-blue-600" />
     },
-    { 
-      id: 4, 
-      title: 'Business Formation', 
-      description: 'End-to-end guidance for company registration and legal compliance.', 
+    {
+      id: 4,
+      title: 'Business Formation',
+      description: 'End-to-end guidance for company registration and legal compliance.',
       image: '/images/court.jpg',
       icon: <Users className="w-6 h-6 text-blue-600" />
     },
-    { 
-      id: 5, 
-      title: 'Family Law Advice', 
-      description: 'Compassionate support for custody, divorce, and estate planning.', 
+    {
+      id: 5,
+      title: 'Family Law Advice',
+      description: 'Compassionate support for custody, divorce, and estate planning.',
       image: '/images/family.jpg',
       icon: <Users className="w-6 h-6 text-blue-600" />
     },
-    { 
-      id: 6, 
-      title: 'Property & Real Estate', 
-      description: 'Secure legal processing for transfers, leases, and land disputes.', 
+    {
+      id: 6,
+      title: 'Property & Real Estate',
+      description: 'Secure legal processing for transfers, leases, and land disputes.',
       image: '/images/real.jpg',
       icon: <Home className="w-6 h-6 text-blue-600" />
     },
@@ -74,18 +85,18 @@ const MainService = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
             {services.map((s) => (
-              <div 
-                key={s.id} 
+              <div
+                key={s.id}
                 className="group bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-500 flex flex-col"
               >
                 <div className="relative h-64 overflow-hidden">
-                  <Image 
-                    src={s.image} 
-                    alt={s.title} 
-                    fill 
-                    className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                  <Image
+                    src={s.image}
+                    alt={s.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
                   <div className="absolute bottom-6 left-6 flex items-center gap-3">
@@ -94,14 +105,28 @@ const MainService = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="p-8 flex-1 flex flex-col justify-between">
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">{s.title}</h3>
                     <p className="text-gray-600 leading-relaxed font-medium">{s.description}</p>
                   </div>
-                  <div className="mt-8 flex items-center text-blue-600 font-bold group-hover:translate-x-2 transition-transform">
-                    Learn More <ArrowRight className="ml-2 w-5 h-5" />
+                  <div className="mt-6 flex flex-col items-start w-full">
+                    <button
+                      onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}
+                      className="flex items-center text-blue-600 font-bold group-hover:translate-x-2 transition-all outline-none"
+                    >
+                      {expandedId === s.id ? 'Show Less' : 'Explore'}
+                      <ArrowRight className={`ml-2 w-5 h-5 transition-transform ${expandedId === s.id ? 'rotate-90' : ''}`} />
+                    </button>
+
+                    <div className={`overflow-hidden transition-all duration-500 ease-in-out w-full ${expandedId === s.id ? 'max-h-96 mt-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                      <div className="pt-4 border-t border-gray-100">
+                        <p className="text-gray-700 text-sm leading-relaxed">
+                          {extendedDetails[s.id]}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
