@@ -305,7 +305,28 @@ db.connect((err) => {
         )`;
         db.query(sql, (err) => {
             if (err) console.error('Error creating notifications table:', err);
-            else console.log('Notifications Table Created');
+            else {
+                console.log('Notifications Table Created');
+                createReviewsTable();
+            }
+        });
+    }
+
+    function createReviewsTable() {
+        const sql = `CREATE TABLE IF NOT EXISTS reviews (
+            review_id INT AUTO_INCREMENT PRIMARY KEY,
+            client_id INT NOT NULL,
+            lawyer_id INT NOT NULL,
+            rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+            review_text TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (client_id) REFERENCES users(user_id) ON DELETE CASCADE,
+            FOREIGN KEY (lawyer_id) REFERENCES lawyers(lawyer_id) ON DELETE CASCADE
+        )`;
+        db.query(sql, (err) => {
+            if (err) console.error('Error creating reviews table:', err);
+            else console.log('Reviews Table Created');
         });
     }
 

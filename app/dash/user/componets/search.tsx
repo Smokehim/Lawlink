@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import LawyerReviews from './LawyerReviews';
 
 const API_BASE = 'http://localhost:3002';
 
@@ -432,14 +433,14 @@ export default function Searchs({ onNavigate }: SearchsProps) {
             {/* ── Lawyer Detail Modal ── */}
             {detailLawyer && !selectedLawyer && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-                        <div className="relative">
+                    <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="relative flex-shrink-0">
                             <Image
                                 src={detailLawyer.photo}
                                 alt={detailLawyer.name}
                                 width={400}
                                 height={200}
-                                className="w-full h-52 object-cover"
+                                className="w-full h-40 sm:h-52 object-cover"
                             />
                             <button
                                 onClick={() => setDetailLawyer(null)}
@@ -449,7 +450,7 @@ export default function Searchs({ onNavigate }: SearchsProps) {
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
-                        <div className="p-6">
+                        <div className="p-5 sm:p-6 overflow-y-auto flex-1">
                             <h3 className="text-2xl font-bold text-gray-900 mb-0.5">{detailLawyer.name}</h3>
                             <p className="text-blue-600 font-semibold text-sm mb-4 capitalize">{detailLawyer.lawyer_type} • {detailLawyer.specialization}</p>
 
@@ -476,8 +477,10 @@ export default function Searchs({ onNavigate }: SearchsProps) {
                                     <span className="text-gray-400 ml-1">/ 5.0</span>
                                 </div>
                             </div>
+                            
+                            <LawyerReviews lawyerId={detailLawyer.id} />
 
-                            <div className="flex space-x-3">
+                            <div className="flex space-x-3 mt-4">
                                 <button
                                     onClick={() => setDetailLawyer(null)}
                                     className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 font-medium transition-colors"

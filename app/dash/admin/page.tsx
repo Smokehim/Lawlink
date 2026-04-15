@@ -11,7 +11,8 @@ import {
   Menu, 
   X,
   ShieldAlert,
-  Settings
+  Settings,
+  Star
 } from 'lucide-react';
 import Clients from './componets/clients';
 import Homes from './componets/home';
@@ -19,6 +20,7 @@ import Lawyers from './componets/lawyers';
 import Locations from './componets/locations';
 import Support from './componets/support';
 import Profile from './componets/profile';
+import AdminReviews from './componets/reviews';
 import NotificationBell from '@/app/components/NotificationBell';
 import Image from 'next/image';
 
@@ -44,7 +46,7 @@ interface DashboardClient {
 }
 
 
-type Section = 'home' | 'lawyers' | 'clients' | 'locations' | 'support' | 'profile';
+type Section = 'home' | 'lawyers' | 'clients' | 'locations' | 'support' | 'profile' | 'reviews';
 
 // Mock locations data
 const mockLocations = [
@@ -145,6 +147,8 @@ export default function AdminDashboard() {
         return <Support />;
       case 'profile':
         return <Profile />;
+      case 'reviews':
+        return <AdminReviews />;
       default:
         return null;
     }
@@ -246,6 +250,21 @@ export default function AdminDashboard() {
           >
             <ShieldAlert className="w-5 h-5" />
             <span>Support Inbox</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setCurrentSection('reviews');
+              setSidebarOpen(false);
+            }}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              currentSection === 'reviews'
+                ? 'bg-gray-100 text-gray-900'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <Star className="w-5 h-5" />
+            <span>Manage Reviews</span>
           </button>
 
           <button
