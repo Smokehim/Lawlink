@@ -197,8 +197,8 @@ const Profile = () => {
                     />
                   </div>
                 ) : (
-                  <div className="w-32 h-32 rounded-full border-4 border-gray-100 bg-gray-50 flex items-center justify-center">
-                    <UserIcon className="w-16 h-16 text-gray-300" />
+                  <div className="w-32 h-32 rounded-full border-4 border-gray-100 bg-purple-600 flex items-center justify-center">
+                    <span className="text-white text-5xl font-bold">{user?.fullName?.charAt(0).toUpperCase() || 'L'}</span>
                   </div>
                 )}
                 

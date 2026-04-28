@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import { createNotification } from '../utils/notificationHelper.js';
+import { validatePassword } from '../utils/validation.js';
 
 const JWT_SECRET = 'your-super-secret-key-for-jwt';
 
@@ -26,6 +27,11 @@ export default function Admins(app) {
 
             if (!password) {
                 return res.status(400).json({ message: "Password is required" });
+            }
+
+            const passwordValidation = validatePassword(password);
+            if (!passwordValidation.valid) {
+                return res.status(400).json({ message: passwordValidation.message });
             }
 
             const salt = await bcrypt.genSalt(10);
@@ -164,7 +170,7 @@ export default function Admins(app) {
 
             const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
             const updateSql = "UPDATE admins SET verification_code = ? WHERE email = ?";
-            
+
             db.query(updateSql, [verificationCode, email], (updateErr) => {
                 if (updateErr) return res.status(500).json({ message: "Database error" });
 

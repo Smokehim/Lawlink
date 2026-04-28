@@ -15,6 +15,7 @@ interface Lawyer {
   province: string;
   district: string;
   licenseUrl: string;
+  profilePicture?: string;
 }
 
 export default function Lawyers() {
@@ -49,7 +50,8 @@ export default function Lawyers() {
           specialization: l.specialization || '',
           province: l.province || '',
           district: l.district || '',
-          licenseUrl: `https://placehold.co/600x400/EEE/31343C?text=License+${encodeURIComponent(l.full_name || 'N/A')}`
+          licenseUrl: `https://placehold.co/600x400/EEE/31343C?text=License+${encodeURIComponent(l.full_name || 'N/A')}`,
+          profilePicture: (l as any).profile_picture ? `http://localhost:3002${(l as any).profile_picture}` : ''
         }));
         setLawyers(mappedLawyers);
       } catch (error) {
@@ -166,8 +168,12 @@ export default function Lawyers() {
         {filteredLawyers.map((lawyer) => (
           <div key={lawyer.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
             <div className="flex justify-between items-start mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl">
-                {lawyer.name.charAt(0).toUpperCase()}
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl overflow-hidden relative">
+                {lawyer.profilePicture ? (
+                  <Image src={lawyer.profilePicture} alt={lawyer.name} fill className="object-cover" unoptimized />
+                ) : (
+                  lawyer.name.charAt(0).toUpperCase()
+                )}
               </div>
               <div className="flex space-x-1">
                 <button

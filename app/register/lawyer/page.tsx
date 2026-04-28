@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, UserPlus } from 'lucide-react';
 import Image from 'next/image';
-
-
+import { validatePassword } from '@/app/utils/validation';
 
 
 export default function LawyerRegistration() {
@@ -35,6 +34,13 @@ export default function LawyerRegistration() {
       setError("Passwords do not match");
       return;
     }
+
+    const passwordCheck = validatePassword(formData.password);
+    if (!passwordCheck.valid) {
+      setError(passwordCheck.message);
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -84,7 +90,7 @@ export default function LawyerRegistration() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Back Button */}
         <div className="flex justify-between items-center mb-4">
@@ -236,7 +242,7 @@ export default function LawyerRegistration() {
                 <option value="attorney">Attorney</option>
               </select>
             </div>
-            ...
+            
             <div>
               <label htmlFor="license" className="block text-sm font-medium text-gray-700 mb-2">
                 Upload License
@@ -296,6 +302,9 @@ export default function LawyerRegistration() {
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               />
+              <p className="mt-1 text-xs text-gray-500">
+                Must be at least 8 chars, include an uppercase letter, a number, and a symbol.
+              </p>
             </div>
 
             <div>

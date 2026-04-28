@@ -40,6 +40,7 @@ Appointments(app);
 Notifications(app);
 Reviews(app);
 app.listen(port, ()=>{
+    console.log("Server is running...")
     console.log(`server is running on port ${port}`);
 });
 

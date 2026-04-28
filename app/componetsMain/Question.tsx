@@ -9,7 +9,7 @@ const datas = [
 ]
 const Question = () => {
   return (
-    <section className="section bg-white">
+    <section className="section bg-white p-10">
       <div className="container">
         <div className="flex flex-col items-center gap-4 mb-16">
           <span className="px-4 py-1 text-xs font-bold tracking-widest text-blue-600 uppercase bg-blue-100 rounded-full">
@@ -23,7 +23,7 @@ const Question = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-20">
           {datas.map((items) => (
             <div key={items.id} className="group bg-slate-50 rounded-3xl p-8 border border-gray-100 hover:border-blue-200 hover:bg-white hover:shadow-xl transition-all duration-300">
               <div className="flex items-start gap-4">

@@ -7,6 +7,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { createNotification } from '../utils/notificationHelper.js';
+import { validatePassword } from '../utils/validation.js';
 
 // Ensure upload directory exists
 const uploadDir = path.join(process.cwd(), 'uploads/profile_pictures');
@@ -60,6 +61,11 @@ export default function Users(app) {
 
             if (!password) {
                 return res.status(400).json({ message: "Password is required" });
+            }
+
+            const passwordValidation = validatePassword(password);
+            if (!passwordValidation.valid) {
+                return res.status(400).json({ message: passwordValidation.message });
             }
 
             const salt = await bcrypt.genSalt(10);

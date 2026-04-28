@@ -213,8 +213,8 @@ export default function Profile() {
                     />
                   </div>
                 ) : (
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-4 border-gray-50 bg-blue-50 flex items-center justify-center shadow-sm">
-                    <User className="w-12 h-12 text-blue-500" />
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-4 border-gray-50 bg-blue-600 flex items-center justify-center shadow-sm">
+                    <span className="text-white text-5xl font-bold">{admin?.fullName?.charAt(0).toUpperCase() || 'A'}</span>
                   </div>
                 )}
                 

@@ -48,14 +48,6 @@ interface DashboardClient {
 
 type Section = 'home' | 'lawyers' | 'clients' | 'locations' | 'support' | 'profile' | 'reviews';
 
-// Mock locations data
-const mockLocations = [
-  { id: '1', province: 'Lusaka', districts: ['Lusaka', 'Chilanga', 'Kafue'] },
-  { id: '2', province: 'Copperbelt', districts: ['Ndola', 'Kitwe', 'Chingola'] },
-  { id: '3', province: 'Southern', districts: ['Livingstone', 'Choma', 'Mazabuka'] },
-  { id: '4', province: 'Eastern', districts: ['Chipata', 'Lundazi', 'Petauke'] },
-  { id: '5', province: 'Western', districts: ['Mongu', 'Kaoma', 'Senanga'] },
-];
 
 export default function AdminDashboard() {
   const [currentSection, setCurrentSection] = useState<Section>('home');
@@ -142,7 +134,7 @@ export default function AdminDashboard() {
         return <Clients />;
 
       case 'locations':
-        return <Locations locations={mockLocations} />;
+        return <Locations />;
       case 'support':
         return <Support />;
       case 'profile':

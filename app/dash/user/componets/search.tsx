@@ -132,10 +132,10 @@ export default function Searchs({ onNavigate }: SearchsProps) {
             .then(res => res.json())
             .then((data) => {
                 if (Array.isArray(data)) {
-                    const mapped: Lawyer[] = data.map((l: { lawyer_id: number; full_name: string; province: string; district: string; specialization: string; email: string; phone_number: string; }) => ({
+                    const mapped: Lawyer[] = data.map((l: { lawyer_id: number; full_name: string; province: string; district: string; specialization: string; email: string; phone_number: string; profile_picture?: string; }) => ({
                         id: l.lawyer_id.toString(),
                         name: l.full_name,
-                        photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300',
+                        photo: l.profile_picture ? `${API_BASE}${l.profile_picture}` : '',
                         province: l.province,
                         district: l.district,
                         specialization: l.specialization,
@@ -345,14 +345,18 @@ export default function Searchs({ onNavigate }: SearchsProps) {
                             className="text-left w-full group"
                             title={`View ${lawyer.name}'s profile`}
                         >
-                            <div className="relative overflow-hidden">
-                                <Image
-                                    src={lawyer.photo}
-                                    alt={lawyer.name}
-                                    width={300}
-                                    height={192}
-                                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                                />
+                            <div className="relative overflow-hidden h-48 bg-blue-50 flex items-center justify-center">
+                                {lawyer.photo ? (
+                                    <Image
+                                        src={lawyer.photo}
+                                        alt={lawyer.name}
+                                        fill
+                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                        unoptimized
+                                    />
+                                ) : (
+                                    <span className="text-blue-500 text-6xl font-bold">{lawyer.name.charAt(0).toUpperCase()}</span>
+                                )}
                             </div>
                             <div className="p-5">
                                 <h3 className="text-lg font-bold text-gray-900 mb-1">{lawyer.name}</h3>
@@ -434,14 +438,18 @@ export default function Searchs({ onNavigate }: SearchsProps) {
             {detailLawyer && !selectedLawyer && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-                        <div className="relative flex-shrink-0">
-                            <Image
-                                src={detailLawyer.photo}
-                                alt={detailLawyer.name}
-                                width={400}
-                                height={200}
-                                className="w-full h-40 sm:h-52 object-cover"
-                            />
+                        <div className="relative flex-shrink-0 h-40 sm:h-52 bg-blue-50 flex items-center justify-center">
+                            {detailLawyer.photo ? (
+                                <Image
+                                    src={detailLawyer.photo}
+                                    alt={detailLawyer.name}
+                                    fill
+                                    className="object-cover"
+                                    unoptimized
+                                />
+                            ) : (
+                                <span className="text-blue-500 text-6xl font-bold">{detailLawyer.name.charAt(0).toUpperCase()}</span>
+                            )}
                             <button
                                 onClick={() => setDetailLawyer(null)}
                                 className="absolute top-3 right-3 bg-black/40 hover:bg-black/60 p-1.5 rounded-full text-white transition-colors"

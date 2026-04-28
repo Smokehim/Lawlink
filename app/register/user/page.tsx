@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
+import { validatePassword } from '@/app/utils/validation';
 
 
 export default function ClientRegister() {
@@ -28,6 +29,14 @@ export default function ClientRegister() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    // Password validation
+    const passwordCheck = validatePassword(form.password);
+    if (!passwordCheck.valid) {
+        setError(passwordCheck.message);
+        return;
+    }
+
     setLoading(true);
 
     try {
@@ -203,6 +212,9 @@ export default function ClientRegister() {
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               />
+              <p className="mt-1 text-xs text-gray-500">
+                Must be at least 8 chars, include an uppercase letter, a number, and a symbol.
+              </p>
             </div>
 
             <button

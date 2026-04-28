@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserPlus, ArrowLeft } from 'lucide-react';
+import { validatePassword } from '@/app/utils/validation';
+
 
 export default function AdminRegistration() {
   const [formData, setFormData] = useState({
@@ -21,6 +23,13 @@ export default function AdminRegistration() {
       setError("Passwords do not match");
       return;
     }
+
+    const passwordCheck = validatePassword(formData.password);
+    if (!passwordCheck.valid) {
+      setError(passwordCheck.message);
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -150,6 +159,9 @@ export default function AdminRegistration() {
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition"
               />
+              <p className="mt-1 text-xs text-gray-500">
+                Must be at least 8 chars, include an uppercase letter, a number, and a symbol.
+              </p>
             </div>
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
