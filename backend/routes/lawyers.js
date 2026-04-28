@@ -81,7 +81,7 @@ export default function Lawyerss(app) {
 
                 // Store lawyer data in database with pending status
                 const insertSql = `INSERT INTO lawyers (full_name, email, phone_number, password, province, district, specialization, bar_number, lawyer_type, profile_picture, license_file, verification_status, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`;
-                
+
                 db.query(insertSql, [full_name, email, phone_number, hashedPassword, province, district, specialization, bar_number, lawyer_type, profilePicture, licenseFile, verificationCode], (insertErr, insertResult) => {
                     if (insertErr) return res.status(500).json({ message: "Database error", error: insertErr.message });
 
@@ -202,7 +202,7 @@ export default function Lawyerss(app) {
 
             const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
             const updateSql = "UPDATE lawyers SET verification_code = ? WHERE email = ?";
-            
+
             db.query(updateSql, [verificationCode, email], (updateErr) => {
                 if (updateErr) return res.status(500).json({ message: "Database error" });
 
@@ -526,7 +526,7 @@ export default function Lawyerss(app) {
                 if (!err2 && lawyers.length > 0) {
                     const lawyer = lawyers[0];
                     const action = status === 'verified' ? 'approved and activated' : 'rejected';
-                    
+
                     // Notify the lawyer
                     createNotification(
                         lawyer_id,
@@ -537,7 +537,7 @@ export default function Lawyerss(app) {
                         `LawLink Account ${status === 'verified' ? 'Approved' : 'Rejected'}`,
                         `<p>Hello ${lawyer.full_name},</p><p>Your lawyer account has been ${action} by our administration team.</p>`
                     );
-                    
+
                     // Notify all admins
                     db.query("SELECT admin_id, email, full_name FROM admins", (err3, admins) => {
                         if (!err3) {
