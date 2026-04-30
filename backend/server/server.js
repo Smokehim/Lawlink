@@ -44,9 +44,10 @@ app.listen(port, ()=>{
     console.log(`server is running on port ${port}`);
 });
 
-db.connect((error)=>{
+db.getConnection((error, connection)=>{
     if(error) return console.log("Error connecting to database:", error);
     console.log("database connected successfully");
+    connection.release();
 });
 
 

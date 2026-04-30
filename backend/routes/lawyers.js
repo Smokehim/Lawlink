@@ -72,7 +72,10 @@ export default function Lawyerss(app) {
             // Check if lawyer already exists
             const checkSql = "SELECT email FROM lawyers WHERE email = ?";
             db.query(checkSql, [email], (err, result) => {
-                if (err) return res.status(500).json({ message: "Database error" });
+                if (err) {
+                    console.error("Database error in checkSql for lawyer:", err);
+                    return res.status(500).json({ message: "Database error", details: err.message });
+                }
                 if (result.length > 0) return res.status(400).json({ message: "Email already registered" });
 
                 // Generate a simple 6-digit verification code
@@ -180,6 +183,7 @@ export default function Lawyerss(app) {
                             fullName: lawyer.full_name,
                             profile_picture: lawyer.profile_picture,
                             lawyer_type: lawyer.lawyer_type,
+                            license_file: lawyer.license_file,
                             serialCode: serialCode,
                             expiresAt: serialCodeExpiresAt
                         }
@@ -279,13 +283,8 @@ export default function Lawyerss(app) {
 
                 const lawyer = results[0];
 
-                if (lawyer.verification_status !== 'verified' && lawyer.verification_status !== 'approved') {
-                    return res.status(403).json({
-                        message: "Account not verified. Please complete the verification step.",
-                        needsVerification: true,
-                        lawyerId: lawyer.lawyer_id
-                    });
-                }
+                // Unverified lawyers can now log in to see their dashboard, 
+                // but they are filtered out in client-facing search results.
 
                 const isMatch = await bcrypt.compare(password, lawyer.password);
                 if (!isMatch) {
@@ -321,6 +320,8 @@ export default function Lawyerss(app) {
                         district: lawyer.district,
                         specialization: lawyer.specialization,
                         lawyer_type: lawyer.lawyer_type,
+                        license_file: lawyer.license_file,
+                        status: lawyer.verification_status,
                         role: 'lawyer'
                     }
                 });

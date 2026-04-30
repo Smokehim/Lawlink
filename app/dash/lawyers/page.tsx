@@ -281,7 +281,23 @@ export default function LawyerDashboard() {
               <p className="text-gray-500">Loading...</p>
             </div>
           ) : (
-            renderContent()
+          {profileData.status !== 'verified' && (
+            <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg shadow-sm">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Clock className="h-5 w-5 text-yellow-400" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-bold text-yellow-800">Verification Pending</h3>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Your account is currently being reviewed by our administrators. 
+                    <strong> Clients cannot see your profile </strong> until you are verified.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          {renderContent()}
           )}
         </main>
       </div>

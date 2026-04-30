@@ -41,7 +41,7 @@ export default function Lawyers() {
           throw new Error('Failed to fetch lawyers');
         }
         const data = await response.json();
-        const mappedLawyers = data.map((l: { lawyer_id: number; full_name?: string; email?: string; phone_number?: string; verification_status?: Lawyer['status']; specialization?: string; province?: string; district?: string }) => ({
+        const mappedLawyers = data.map((l: { lawyer_id: number; full_name?: string; email?: string; phone_number?: string; verification_status?: Lawyer['status']; specialization?: string; province?: string; district?: string; license_file?: string }) => ({
           id: l.lawyer_id.toString(),
           name: l.full_name || '',
           email: l.email || '',
@@ -50,7 +50,7 @@ export default function Lawyers() {
           specialization: l.specialization || '',
           province: l.province || '',
           district: l.district || '',
-          licenseUrl: `https://placehold.co/600x400/EEE/31343C?text=License+${encodeURIComponent(l.full_name || 'N/A')}`,
+          licenseUrl: l.license_file ? `http://localhost:3002${l.license_file}` : `https://placehold.co/600x400/EEE/31343C?text=No+License+Uploaded`,
           profilePicture: (l as any).profile_picture ? `http://localhost:3002${(l as any).profile_picture}` : ''
         }));
         setLawyers(mappedLawyers);

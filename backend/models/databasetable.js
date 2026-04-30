@@ -1,11 +1,12 @@
 import db from '../database/database.js';
 
-db.connect((err) => {
+db.getConnection((err, connection) => {
     if (err) {
         console.error('Database connection failed:', err);
         return;
     }
     console.log('Connected to database for table initialization');
+    connection.release();
 
     // -----------------------------
     // 1. Users Table

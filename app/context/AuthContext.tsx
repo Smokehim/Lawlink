@@ -19,7 +19,8 @@ interface User {
   specialization?: string;
   status?: string;
   certificates?: string[];
-  bio?: string;
+  license_file?: string;
+  created_at?: string;
 }
 
 interface AuthContextType {

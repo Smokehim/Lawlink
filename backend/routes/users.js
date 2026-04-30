@@ -74,7 +74,10 @@ export default function Users(app) {
             // Check if user already exists in database
             const checkSql = "SELECT email FROM users WHERE email = ?";
             db.query(checkSql, [email], (err, result) => {
-                if (err) return res.status(500).json({ message: "Database error" });
+                if (err) {
+                    console.error("Database error in checkSql:", err);
+                    return res.status(500).json({ message: "Database error", details: err.message });
+                }
                 if (result.length > 0) return res.status(400).json({ message: "Email already registered" });
 
                 // Check if email is already in pending registrations

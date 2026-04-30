@@ -366,6 +366,36 @@ const Profile = () => {
                   </div>
                 )}
               </div>
+              
+              {/* License File Section */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Professional License</label>
+                {user.license_file ? (
+                  <div className="bg-purple-50 border border-purple-100 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FileText className="w-6 h-6 text-purple-600 mr-3" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Lawyer License Document</p>
+                          <p className="text-xs text-gray-500">Uploaded during registration</p>
+                        </div>
+                      </div>
+                      <a 
+                        href={`${API_BASE}${user.license_file}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-white text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium"
+                      >
+                        View License
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+                    <p className="text-sm text-gray-500">No license file found on your profile.</p>
+                  </div>
+                )}
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <input

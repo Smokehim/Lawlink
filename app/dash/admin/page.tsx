@@ -69,7 +69,7 @@ export default function AdminDashboard() {
         if (!response.ok) throw new Error('Failed to fetch lawyers');
         
         const data = await response.json();
-        const mappedLawyers = data.map((l: { lawyer_id: number; full_name?: string; email?: string; phone_number?: string; verification_status?: DashboardLawyer['status']; specialization?: string; province?: string; district?: string }): DashboardLawyer => ({
+        const mappedLawyers = data.map((l: { lawyer_id: number; full_name?: string; email?: string; phone_number?: string; verification_status?: DashboardLawyer['status']; specialization?: string; province?: string; district?: string; license_file?: string }): DashboardLawyer => ({
           id: l.lawyer_id.toString(),
           name: l.full_name,
           email: l.email,
@@ -78,7 +78,7 @@ export default function AdminDashboard() {
           specialization: l.specialization,
           province: l.province,
           district: l.district,
-          licenseUrl: 'https://placehold.co/600x400/EEE/31343C?text=License' // Placeholder
+          licenseUrl: l.license_file ? `${API_BASE}${l.license_file}` : 'https://placehold.co/600x400/EEE/31343C?text=No+License'
         }));
         setLawyers(mappedLawyers);
       } catch (error) {
