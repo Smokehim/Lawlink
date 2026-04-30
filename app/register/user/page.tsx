@@ -8,7 +8,7 @@ import { validatePassword } from '@/app/utils/validation';
 
 
 export default function ClientRegister() {
-  const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '', gender: '' });
+  const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '', confirmPassword: '', gender: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -30,6 +30,11 @@ export default function ClientRegister() {
     e.preventDefault();
     setError('');
     
+    if (form.password !== form.confirmPassword) {
+        setError("Passwords do not match");
+        return;
+    }
+
     // Password validation
     const passwordCheck = validatePassword(form.password);
     if (!passwordCheck.valid) {
@@ -215,6 +220,22 @@ export default function ClientRegister() {
               <p className="mt-1 text-xs text-gray-500">
                 Must be at least 8 chars, include an uppercase letter, a number, and a symbol.
               </p>
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm your password"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+              />
             </div>
 
             <button
