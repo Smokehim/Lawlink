@@ -57,7 +57,7 @@ export default function Users(app) {
         try {
             const { full_name, email, phone_number, password, gender } = req.body;
             const profilePicture = req.file ? `/uploads/profile_pictures/${req.file.filename}` : null;
-            console.log("Received signup data:", req.body);
+
 
             if (!password) {
                 return res.status(400).json({ message: "Password is required" });
@@ -76,7 +76,7 @@ export default function Users(app) {
             db.query(checkSql, [email], (err, result) => {
                 if (err) {
                     console.error("Database error in checkSql:", err);
-                    return res.status(500).json({ message: "Database error", details: err.message });
+                    return res.status(500).json({ message: "Database error" });
                 }
                 if (result.length > 0) return res.status(400).json({ message: "Email already registered" });
 
@@ -87,7 +87,7 @@ export default function Users(app) {
 
                 // Generate a simple 6-digit verification code
                 const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-                console.log(`Verification code for new user ${email} is: ${verificationCode}`); // For development/testing
+
 
                 // Generate temporary ID for tracking
                 const tempUserId = crypto.randomBytes(8).toString('hex');

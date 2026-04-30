@@ -55,7 +55,7 @@ export default function Lawyerss(app) {
             const { full_name, email, phone_number, password, province, district, specialization, bar_number, lawyer_type } = req.body;
             const profilePicture = req.files['profile_picture'] ? `/uploads/profile_pictures/${req.files['profile_picture'][0].filename}` : null;
             const licenseFile = req.files['license_file'] ? `/uploads/lawyer_docs/${req.files['license_file'][0].filename}` : null;
-            console.log("Received lawyer signup data:", full_name, email, phone_number, password);
+
 
             if (!password) {
                 return res.status(400).json({ message: "Password is required" });
@@ -74,19 +74,22 @@ export default function Lawyerss(app) {
             db.query(checkSql, [email], (err, result) => {
                 if (err) {
                     console.error("Database error in checkSql for lawyer:", err);
-                    return res.status(500).json({ message: "Database error", details: err.message });
+                    return res.status(500).json({ message: "Database error" });
                 }
                 if (result.length > 0) return res.status(400).json({ message: "Email already registered" });
 
                 // Generate a simple 6-digit verification code
                 const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-                console.log(`Verification code for new lawyer ${email} is: ${verificationCode}`);
+
 
                 // Store lawyer data in database with pending status
                 const insertSql = `INSERT INTO lawyers (full_name, email, phone_number, password, province, district, specialization, bar_number, lawyer_type, profile_picture, license_file, verification_status, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`;
 
                 db.query(insertSql, [full_name, email, phone_number, hashedPassword, province, district, specialization, bar_number, lawyer_type, profilePicture, licenseFile, verificationCode], (insertErr, insertResult) => {
-                    if (insertErr) return res.status(500).json({ message: "Database error", error: insertErr.message });
+                    if (insertErr) {
+                        console.error("Database error on lawyer insertion:", insertErr);
+                        return res.status(500).json({ message: "Database error" });
+                    }
 
                     const lawyerId = insertResult.insertId;
 
@@ -268,11 +271,11 @@ export default function Lawyerss(app) {
     app.post('/login_lawyer', async (req, res) => {
         try {
             const { email, password } = req.body;
-            console.log("Lawyer login attempt for email:", email);
+
 
             const sql = "SELECT * FROM lawyers WHERE email = ?";
             db.query(sql, [email], async (err, results) => {
-                console.log("Lawyer login results:", results);
+
                 if (err) {
                     return res.status(500).json({ message: "Database error" });
                 }
