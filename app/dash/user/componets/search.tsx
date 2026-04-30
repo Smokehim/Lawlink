@@ -17,7 +17,7 @@ import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import LawyerReviews from './LawyerReviews';
 
-const API_BASE = 'http://localhost:3002';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
 interface SearchsProps {
     onNavigate?: (section: 'home' | 'search' | 'messages' | 'profile' | 'appointments') => void;

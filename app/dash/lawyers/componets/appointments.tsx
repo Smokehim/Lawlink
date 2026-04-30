@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar, CheckCircle, XCircle, Clock, ToggleLeft, ToggleRight, User, Phone, Mail } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 
-const API_BASE = 'http://localhost:3002';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
 interface Appointment {
   id: number;

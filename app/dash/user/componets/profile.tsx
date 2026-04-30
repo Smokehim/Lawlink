@@ -4,7 +4,7 @@ import Image from 'next/image';
 import ChangePassword from './changePassword';
 import { useAuth } from '@/app/context/AuthContext';
 
-const API_BASE = 'http://localhost:3002';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
 const UserProfile = () => {
     const { user, token, logout, setUserData } = useAuth();
